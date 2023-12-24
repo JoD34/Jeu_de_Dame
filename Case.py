@@ -1,9 +1,9 @@
 
 class Case:
-    def __init__(self) -> None:
-        self.pos_x = None
-        self.pos_y = None
-        self.color = None
+    def __init__(self, x, y, color) -> None:
+        self.pos_x = x
+        self.pos_y = y
+        self.color = color
         self.occupied = False
     
     def get_pos_x(self):
