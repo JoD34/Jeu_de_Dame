@@ -1,10 +1,10 @@
 
 class Case:
     def __init__(self) -> None:
-        pos_x = None
-        pos_y = None
-        color = None
-        occupied = False
+        self.pos_x = None
+        self.pos_y = None
+        self.color = None
+        self.occupied = False
     
     def get_pos_x(self):
         """Get position of x value.
@@ -62,7 +62,7 @@ class Case:
         """
         self.color = new_color
         
-    def set_occupancy(self):
+    def switch_occupancy(self):
         """Switch status of occupancy.
         """
         self.occupied = not self.get_occupancy()
