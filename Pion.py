@@ -1,5 +1,4 @@
 from Jeton import Jeton
-from Dame import Dame
 
 class Pion(Jeton):
     def __init__(self, x, y, color) -> None:
