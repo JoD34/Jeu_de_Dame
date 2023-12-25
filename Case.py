@@ -1,9 +1,8 @@
 
 class Case:
-    def __init__(self, x, y, color) -> None:
+    def __init__(self, x, y) -> None:
         self.x = x
         self.y = y
-        self.color = color
         self.occupied = False
     
     def get_x(self):
@@ -21,14 +20,6 @@ class Case:
             int: position (square) in y value.
         """
         return self.y
-    
-    def get_color(self):
-        """Get color of square to be shown.
-
-        Returns:
-            str: color of square.
-        """
-        return self.color
     
     def get_occupancy(self):
         """Get occupancy statue of the square.
@@ -53,14 +44,6 @@ class Case:
             new_y (int): new position in x value.
         """
         self.y = new_y
-        
-    def set_color(self, new_color):
-        """Set new color of square.
-
-        Args:
-            new_color (str): code of new color.
-        """
-        self.color = new_color
         
     def switch_occupancy(self):
         """Switch status of occupancy.
