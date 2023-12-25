@@ -1,8 +1,12 @@
-import Jeton
+from Jeton import Jeton
+from Dame import Dame
 
 class Pion(Jeton):
-    def __init__(self) -> None:
-        Jeton.__init__(self, )
+    def __init__(self, x, y, color) -> None:
+        super().__init__(self, x, y, color, type = "pion", color = color)
+    
+    def to_queen(self, board):
+        pass
         
     
     def see_available_takes(self, board):
