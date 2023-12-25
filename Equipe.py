@@ -1,9 +1,10 @@
 from Pion import Pion
+import matplotlib.image as mpimg
 
 class Equipe():
     def __init__(self, color) -> None:
         self.color = color
-        self.color_code = {'black' : "#000000", 'white': "#FFFFFF"}
+        self.color_code = {'red' : "#000000", 'white': "#FFFFFF"}
         self.pion = self.make_team()
         self.images = self.get_images()
     
@@ -51,7 +52,10 @@ class Equipe():
         return len(self.pion) == 0
     
     def get_images(self):
-        return {'red' : {'reg' : "C:\Users\josep\Documents\prog_projects\images\red_regular-no_bg.png",
-                         'queen' : "C:\Users\josep\Documents\prog_projects\images\red_queen-no_bg.png"},
-                'black' : {'reg' : "C:\Users\josep\Documents\prog_projects\images\black_regular-no_bg.png",
-                           'queen' : "C:\Users\josep\Documents\prog_projects\images\black_queen-no_bg.png"}}
+        img_paths = ["C:\Users\josep\Documents\prog_projects\images\red_regular-no_bg.png",
+                     "C:\Users\josep\Documents\prog_projects\images\red_queen-no_bg.png",
+                     "C:\Users\josep\Documents\prog_projects\images\black_regular-no_bg.png",
+                     "C:\Users\josep\Documents\prog_projects\images\black_queen-no_bg.png"]
+        
+        return {'red' : {'reg' : mpimg.imread(img_paths[0]), 'queen' : mpimg.imread(img_paths[1])},
+                'black' : {'reg' : mpimg.imread(img_paths[2]), 'queen' : mpimg.imread(img_paths[3])}}
