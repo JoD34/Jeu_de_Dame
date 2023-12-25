@@ -7,7 +7,7 @@ class JeuDeDame(Tk):
         super().__init__()
         self.title(titre)
         self.side = 650
-        self.main_frame = None
+        self.main_frame = Frame(master = self, width = self.side, height = self.side)
         self.colors = {'pale' : "#edd2a7", 'fonce' : "#a24e31"}
         self.teams = {"white": Equipe("white"), "noir": Equipe("black")}
         self.board = self.make_board()
@@ -24,15 +24,16 @@ class JeuDeDame(Tk):
         
         # Calculate appropriate height
         position_bas = int((self.winfo_screenheight() - self.side) / 2) - 50    
+        
         # Applied geometry
         self.geometry(f"+{position_droite}+{position_bas}")
-    
+        
     def make_board(self):
+        """Generate all the frame for the board with coordinated colors.
+        """
+        # Constants
         NUMBER_OF_SQUARES = 10
         SIDE_SQUARE = self.side / NUMBER_OF_SQUARES
-
-        # Make main Frame
-        self.main_frame = Frame(master = self, width = self.side, height = self.side)
         
         # Make frames for various squares
         for i in range(NUMBER_OF_SQUARES):
@@ -44,11 +45,20 @@ class JeuDeDame(Tk):
                               highlightbackground = "#000000", 
                               highlightthickness = 0.5)
                 frame.grid(row = i, column = j)
+        
+        # Set every frame to viewers
         self.main_frame.pack()
         
     def click(self, event = None):
-        grid_info = event.widget.grid_info()
-        print("row:", grid_info["row"], "column:", grid_info["column"])
+        """Get info of mouse click.
+
+        Args:
+            event : Click of the mouse. Defaults to None.
+        """
+        infos = event.widget.grid_info()
+        print("row:", infos["row"], "column:", infos["column"])
         
     def set_event(self):
+        """Set every events objects.
+        """
         self.bind("<Button-1>", self.click)
