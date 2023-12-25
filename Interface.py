@@ -9,12 +9,13 @@ class JeuDeDame(Tk):
         self.side = 650
         self.main_frame = Frame(master = self, width = self.side, height = self.side)
         self.colors = {'pale' : "#edd2a7", 'fonce' : "#a24e31"}
-        self.teams = {"white": Equipe("white"), "noir": Equipe("black")}
+        self.teams = {"white": Equipe("white"), "red": Equipe("red")}
         self.board = self.make_board()
         self.damier = Damier()
         self.resizable(width = False, height = False) 
         self.set_event()
         self.center_ecran()
+        print(self.teams["white"])
     
     def center_ecran(self):
         """Centrer la fenêtre au centre de l'écran

@@ -1,9 +1,8 @@
 
 class Jeton:
-    def __init__(self, x, y, type, color) -> None:
+    def __init__(self, x, y, type) -> None:
         self.type = type
         self.move = None
-        self.color = color
         self.x = x
         self.y = y
     
@@ -14,14 +13,6 @@ class Jeton:
             list: All possible moves in x
         """
         return self.move
-    
-    def get_color(self):
-        """Get color of the pieces
-
-        Returns:
-            str: color code for the piece
-        """
-        return self.color
     
     def get_type(self):
         """Get the piece type
@@ -62,14 +53,6 @@ class Jeton:
             new_move (list): all possible moves in x
         """
         self.move = new_move
-    
-    def set_color(self, color):
-        """Set color of piece
-
-        Args:
-            color (str): color code of piece
-        """
-        self.color = color
         
     def set_x(self, new_x):
         """Set new value of x
