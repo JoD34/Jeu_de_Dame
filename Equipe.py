@@ -1,4 +1,4 @@
-import Pion
+from Pion import Pion
 
 class Equipe():
     def __init__(self, color) -> None:
