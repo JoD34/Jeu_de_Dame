@@ -1,9 +1,9 @@
 
 class Jeton:
-    def __init__(self, x, y, type = "pion") -> None:
+    def __init__(self, x, y, type, color) -> None:
         self.type = type
         self.move = None
-        self.color = None
+        self.color = color
         self.x = x
         self.y = y
     
@@ -91,5 +91,4 @@ class Jeton:
         return([(i, i) for i in self.move])
     
     def see_available_takes(self, board):
-        
-        
+        pass
