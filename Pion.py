@@ -2,7 +2,7 @@ from Jeton import Jeton
 
 class Pion(Jeton):
     def __init__(self, x, y, color) -> None:
-        super().__init__(self, x, y, color, type = "pion", color = color)
+        super().__init__(self, x = x, y = y, color = color, type = "pion")
     
     def to_queen(self, board):
         pass
