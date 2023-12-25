@@ -1,9 +1,10 @@
 from Case import Case
+import sys
 
 class Damier():
     def __init__(self) -> None:
-        self.squares = self.create_board()
         self.colors = {'pale' : "#eab676", 'fonce' : "#1e81b0"}
+        self.squares = self.create_board()
         
     def get_square(self, x, y):
         """Access a given square on the board.
@@ -33,9 +34,8 @@ class Damier():
             y (int): position in y on the board.
             color (str): set color of the square.
         """
-        return Case(pos_x = x, 
-                    pos_y = y, 
-                    color = self.colors()["pale" if ((x + y) % 2 != 0) else "fonce"])
+        return Case(x = x, y = y, color = self.colors["pale" if (x + y) % 2 != 0 else "fonce"])
+        
     
     def create_board(self):
         """Create the hole board with the squares
