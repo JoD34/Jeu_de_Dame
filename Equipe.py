@@ -22,11 +22,29 @@ class Equipe():
                     for j in range(INIT_X) for i in range(INIT_Y)]
 
         # Generate White teams
-        return [Pion(x = i,y = j, color = self.color) for j in range(INIT_X) for i in range(INIT_Y)]
+        return [Pion(x = i, y = j, color = self.color) for j in range(INIT_X) for i in range(INIT_Y)]
     
     def get_pion(self):
+        """Get list of all pions of a team
+
+        Returns:
+            list: all remaining Jetons objects of a given team
+        """
         return self.pion
     
+    def get_color(self):
+        """Get color of team
+
+        Returns:
+            str: color of a team
+        """
+        return self.color
+    
     def has_lost(self):
+        """See if a given team has zero Jeton left. Means end of game
+
+        Returns:
+            bool: if the number of player in a team is zero
+        """
         return len(self.pion) == 0
     
