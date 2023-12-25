@@ -1,5 +1,5 @@
 from Pion import Pion
-import matplotlib.image as mpimg
+from PIL import ImageTk, Image
 
 class Equipe():
     def __init__(self, color) -> None:
@@ -54,5 +54,5 @@ class Equipe():
                      "C:\\Users\\josep\\Documents\\prog_projects\\images\\black_regular-no_bg.png",
                      "C:\\Users\\josep\\Documents\\prog_projects\\images\\black_queen-no_bg.png"]
         
-        return {'red' : {'reg' : mpimg.imread(img_paths[0]), 'queen' : mpimg.imread(img_paths[1])},
-                'black' : {'reg' : mpimg.imread(img_paths[2]), 'queen' : mpimg.imread(img_paths[3])}}
+        return {'red' : {'reg' : ImageTk.PhotoImage(Image.open(img_paths[0])), 'queen' : ImageTk.PhotoImage(Image.open(img_paths[1]))},
+                'black' : {'reg' : ImageTk.PhotoImage(Image.open(img_paths[2])), 'queen' : ImageTk.PhotoImage(Image.open(img_paths[3]))}}
