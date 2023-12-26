@@ -5,7 +5,6 @@ class Equipe():
     def __init__(self, color) -> None:
         self.color = color
         self.pion = self.make_team()
-        self.images = self.get_images()
     
     def make_team(self):
         """Generate the full team with accurate coordonates
@@ -48,11 +47,23 @@ class Equipe():
         """
         return len(self.pion) == 0
     
-    def get_images(self):
+    @classmethod
+    def __get_images_dict(cls, team_color, piece_category):
         img_paths = ["C:\\Users\\josep\\Documents\\prog_projects\\images\\red_regular-no_bg.png",
                      "C:\\Users\\josep\\Documents\\prog_projects\\images\\red_queen-no_bg.png",
                      "C:\\Users\\josep\\Documents\\prog_projects\\images\\black_regular-no_bg.png",
                      "C:\\Users\\josep\\Documents\\prog_projects\\images\\black_queen-no_bg.png"]
+        try:
+            images_dict = {'red': {'reg': Image.open(img_paths[0]), 'queen': Image.open(img_paths[1])},
+                           'black': {'reg': Image.open(img_paths[2]), 'queen': Image.open(img_paths[3])}}
+            
+            return images_dict[team_color][piece_category]
         
-        return {'red' : {'reg' : ImageTk.PhotoImage(Image.open(img_paths[0])), 'queen' : ImageTk.PhotoImage(Image.open(img_paths[1]))},
-                'black' : {'reg' : ImageTk.PhotoImage(Image.open(img_paths[2])), 'queen' : ImageTk.PhotoImage(Image.open(img_paths[3]))}}
+        except FileNotFoundError as e:
+            print(f"Error loading image: {e}")
+    
+    @classmethod
+    def get_images(cls, team_color, piece_category):
+        img = cls.__get_images_dict(team_color = team_color, piece_category = piece_category)
+        img = img.resize(size = (50, 50))
+        return ImageTk.PhotoImage(img)
