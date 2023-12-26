@@ -29,7 +29,7 @@ class Case:
         """
         return self.occupied
     
-    def set_pos_x(self, new_x):
+    def set_x(self, new_x):
         """Set new position in x.
 
         Args:
@@ -37,7 +37,7 @@ class Case:
         """
         self.x = new_x
         
-    def set_pos_y(self, new_y):
+    def set_y(self, new_y):
         """Set new position in y.
 
         Args:
