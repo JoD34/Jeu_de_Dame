@@ -16,7 +16,7 @@ class Damier():
         """
         return self.squares[x][y]
     
-    def get_diagonal_square(self, x, y, team_color):
+    def get_diagonal_squares(self, x, y, team_color):
         """Get diagonal squares of a given square. 
 
         Args:
@@ -25,11 +25,15 @@ class Damier():
             team_color (str): color of team
 
         Returns:
-            _type_: _description_
+            dict: squares retrieved
         """
+        # Correction depending of color
         x  = x + 1 if team_color == 'black' else x - 1
+        
+        # Get squares
         left = self.get_square(x=x, y=(y - 1))
         right = self.get_square(x=x, y=(y + 1))
+        
         return {'left' : left, 'right' : right}
     
     def create_square(self, x, y):
