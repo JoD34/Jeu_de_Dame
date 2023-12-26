@@ -53,6 +53,9 @@ class JeuDeDame(Tk):
                 # Place canvas widget on grid
                 canvas.grid(row = i, column = j)
                 
+                # Bind the click event to the Canvas
+                if (i + j) % 2 != 0 : canvas.bind("<Button-1>", self.click)
+                
                 # Append canvas to all canvas
                 self.board.append(canvas)
         
@@ -100,9 +103,6 @@ class JeuDeDame(Tk):
 
                 # Create an image item on the Canvas
                 canvas.create_image(length/2, length/2, anchor=CENTER, image=img)
-
-                # Bind the click event to the Canvas
-                canvas.bind("<Button-1>", self.click)
 
                 # Store the image reference in the canvas (optional but can be useful)
                 canvas.image = img
