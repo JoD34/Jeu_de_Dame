@@ -56,16 +56,17 @@ class JeuDeDame(Tk):
                 # Bind the click event to the Canvas
                 if (i + j) % 2 != 0 : canvas.bind("<Button-1>", self.click)
                 
-                # Append canvas to all canvas
+                # Append canvas to canvas list
                 self.board.append(canvas)
         
-        # Set every frame to viewers
+        # Set every canvas on main frame
         self.main_frame.pack()
         
+        # Set pions on initial positions
         self.__set_pion_beginning("red")
         self.__set_pion_beginning("black")
         
-        # Enable resize
+        # Disable resize
         self.resizable(width = False, height = False) 
    
     def next_turn(self):
