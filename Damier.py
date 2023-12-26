@@ -14,15 +14,7 @@ class Damier():
         Returns:
             Case: case on the board.
         """
-        return self.squares[x, y]
-    
-    def get_colors(self):
-        """Return the colors for the board
-
-        Returns:
-            dict: different colors of the board
-        """
-        return self.colors
+        return self.squares[x][y]
     
     def create_square(self, x, y):
         """Create a square
@@ -32,12 +24,12 @@ class Damier():
             y (int): position in y on the board.
             color (str): set color of the square.
         """
-        return Case(x = x, y = y)
+        return Case(x=x, y=y)
         
     
     def create_board(self):
-        """Create the hole board with the squares
+        """Create the entire board with the squares
         """
         SIDE = 10
-        self.square = [self.create_square(x = i, y = j) for j in range(SIDE) for i in range(SIDE)]
+        return [[self.create_square(x=i, y=j) for j in range(SIDE)] for i in range(SIDE)]
                 
