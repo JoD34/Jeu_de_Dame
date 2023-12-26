@@ -81,8 +81,9 @@ class JeuDeDame(Tk):
             event : Click of the mouse. Defaults to None.
         """
         infos = event.widget.grid_info()
-        square = self.damier.get_square(x=infos['row'], y=infos['column'])
-        print(square.get_occupancy())
+        x, y = infos['row'], infos['column']
+        square = self.damier.get_square(x=x, y=y)
+        if (square.get_occupancy()): self.highlight_moves(x=x, y=y)
     
     def __set_pion_beginning(self, team_color):
         """Set pions for a team for the beginning of play
@@ -111,3 +112,32 @@ class JeuDeDame(Tk):
                 # Set occupancy of square on damier
                 square = self.damier.get_square(x=i, y=j)
                 square.switch_occupancy()
+                
+    def highlight_moves(self, x, y, team_color):
+        """Highlight squares with corresponding moves
+
+        Args:
+            x (int): number for the row
+            y (int): number for the column
+        """
+        diags = self.damier.get_diagonal_squares(x=x, y=y, team_color=team_color)
+        self.__highlight_square(square=diags['left'])
+        self.__highlight_square(square=diags['right'])
+
+    def __highlight_square(self, square):
+        """Highlight squares for moves
+
+        Args:
+            square (Case): square in damier
+        """
+        # Get index data
+        x = square.get_x()
+        y = square.get_y()
+        index = int(str(x) + str(y))
+        
+        # Assigned highlight
+        canva = self.board[index]
+        canva.highlightbackground('yellow')
+    
+    def delete_highlight(self,square):
+        pass
