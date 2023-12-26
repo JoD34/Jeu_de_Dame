@@ -50,10 +50,10 @@ class JeuDeDame(Tk):
                                 background=self.colors["pale" if (i + j) % 2 == 0 else "fonce"])
 
                 
-                # Place frame on grid
+                # Place canvas widget on grid
                 canvas.grid(row = i, column = j)
                 
-                # Append frame to all frames
+                # Append canvas to all canvas
                 self.board.append(canvas)
         
         # Set every frame to viewers
@@ -77,7 +77,8 @@ class JeuDeDame(Tk):
             event : Click of the mouse. Defaults to None.
         """
         infos = event.widget.grid_info()
-        print("row:", infos["row"], "column:", infos["column"])
+        square = self.damier.get_square(x=infos['row'], y=infos['column'])
+        print(square.get_occupancy())
     
     def __set_pion_beginning(self, team_color):
         """Set pions for a team for the beginning of play
@@ -85,7 +86,7 @@ class JeuDeDame(Tk):
         Args:
             team_color (str): name of the team color
         """
-
+        # Get image, canvas side length and rows of team starts position
         img = Equipe.get_images(team_color=team_color, piece_category='reg')
         length = self.side / self.number_of_squares
         beg_x, end_x = (0, 4) if team_color == 'black' else (6, 10)
@@ -94,7 +95,8 @@ class JeuDeDame(Tk):
             for j in range(0, 10):
                 if (i + j) % 2 == 0 : continue
                 
-                canvas = self.board[int(str(i) + str(j))]
+                index = int(str(i) + str(j))
+                canvas = self.board[index]
 
                 # Create an image item on the Canvas
                 canvas.create_image(length/2, length/2, anchor=CENTER, image=img)
@@ -102,5 +104,9 @@ class JeuDeDame(Tk):
                 # Bind the click event to the Canvas
                 canvas.bind("<Button-1>", self.click)
 
-                # Store the image reference in the frame (optional but can be useful)
+                # Store the image reference in the canvas (optional but can be useful)
                 canvas.image = img
+                
+                # Set occupancy of square on damier
+                square = self.damier.get_square(x=i, y=j)
+                square.switch_occupancy()
