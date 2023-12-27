@@ -3,7 +3,7 @@ class Case:
     def __init__(self, x, y) -> None:
         self.x = x
         self.y = y
-        self.color = None
+        self.color = ""
         self.occupied = False
     
     def get_x(self):
