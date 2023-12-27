@@ -1,8 +1,11 @@
 from Jeton import Jeton
 
 class Pion(Jeton):
-    def __init__(self, x, y) -> None:
-        super().__init__(x = x, y = y, type = "pion")
+    def __init__(self, x, y, case, color) -> None:
+        super().__init__(x = x, y = y, 
+                         type = "pion", 
+                         case = case,
+                         color = color)
     
     def to_queen(self, board):
         pass
