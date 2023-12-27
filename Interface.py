@@ -11,6 +11,7 @@ class JeuDeDame(Tk):
         self.colors = {'pale' : "#edd2a7", 'fonce' : "#a24e31"}
         self.board = []
         self.turn = ['white', 'red']
+        self.highlighted = []
         
         # Generate attributes with relation to other classes
         self.damier = Damier()
@@ -47,6 +48,7 @@ class JeuDeDame(Tk):
                                 width=SIDE_SQUARE, 
                                 height=SIDE_SQUARE, 
                                 highlightthickness=0,
+                                highlightcolor='#FFFF00',
                                 background=self.colors["pale" if (i + j) % 2 == 0 else "fonce"])
 
                 
@@ -80,10 +82,15 @@ class JeuDeDame(Tk):
         Args:
             event : Click of the mouse. Defaults to None.
         """
+        # Remove existing highlight
+        if len(self.highlighted) > 0: self.remove_highlight()
+        
+        # Get square infos
         infos = event.widget.grid_info()
         x, y = infos['row'], infos['column']
         square = self.damier.get_square(x=x, y=y)
-        if (square.get_occupancy()): self.highlight_moves(x=x, y=y)
+        
+        if (square.get_occupancy()): self.highlight_moves(x=x, y=y, team_color=square.get_color())
     
     def __set_pion_beginning(self, team_color):
         """Set pions for a team for the beginning of play
@@ -112,6 +119,7 @@ class JeuDeDame(Tk):
                 # Set occupancy of square on damier
                 square = self.damier.get_square(x=i, y=j)
                 square.switch_occupancy()
+                square.set_color(new_color=team_color)
                 
     def highlight_moves(self, x, y, team_color):
         """Highlight squares with corresponding moves
@@ -121,8 +129,9 @@ class JeuDeDame(Tk):
             y (int): number for the column
         """
         diags = self.damier.get_diagonal_squares(x=x, y=y, team_color=team_color)
-        self.__highlight_square(square=diags['left'])
-        self.__highlight_square(square=diags['right'])
+        left, right = diags['left'], diags['right']
+        if left is not None : self.__highlight_square(square=left)
+        if right is not None : self.__highlight_square(square=right)
 
     def __highlight_square(self, square):
         """Highlight squares for moves
@@ -131,13 +140,14 @@ class JeuDeDame(Tk):
             square (Case): square in damier
         """
         # Get index data
-        x = square.get_x()
-        y = square.get_y()
-        index = int(str(x) + str(y))
+        index = int(str(square.get_x()) + str(square.get_y()))
         
         # Assigned highlight
         canva = self.board[index]
-        canva.highlightbackground('yellow')
-    
-    def delete_highlight(self,square):
-        pass
+        canva.config(bg="lightblue")
+        self.highlighted.append(canva)
+        
+    def remove_highlight(self):
+        """remove highlight on square
+        """
+        for canvas in self.highlighted: canvas.config(bg = self.colors['fonce'])
