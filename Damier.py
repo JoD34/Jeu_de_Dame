@@ -31,8 +31,8 @@ class Damier():
         x  = x + 1 if team_color == 'black' else x - 1
         
         # Get squares
-        left = self.get_square(x=x, y=(y - 1))
-        right = self.get_square(x=x, y=(y + 1))
+        left = self.get_square(x=x, y=(y - 1)) if ((y - 1  < 10) and (y - 1 >= 0)) else None
+        right = self.get_square(x=x, y=(y + 1)) if ((y + 1  < 10) and (y + 1 >= 0)) else None
         
         return {'left' : left, 'right' : right}
     
