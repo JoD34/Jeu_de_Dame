@@ -21,13 +21,13 @@ class Case:
         """
         return self.y
     
-    def get_occupancy(self):
-        """Get occupancy statue of the square.
+    def get_jeton(self):
+        """Get current jeton on the square
 
         Returns:
-            bool: True if occupied; False if not.
+            Jeton: current Jeton on the squre
         """
-        return self.jeton is None
+        return self.jeton
     
     def set_x(self, new_x):
         """Set new position in x.
@@ -52,3 +52,16 @@ class Case:
             jeton (Jeton): Jeton place on the Case. Can be an object of type Pion or Dame
         """
         self.jeton = jeton
+        
+    def remove_jeton(self):
+        """Remove Jeton
+        """
+        self.jeton = None
+    
+    def is_occupied(self):
+        """Get occupancy statue of the square.
+
+        Returns:
+            bool: True if occupied; False if not.
+        """
+        return self.jeton is not None
