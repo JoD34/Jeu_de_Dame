@@ -4,7 +4,8 @@ from PIL import ImageTk, Image
 class Equipe():
     def __init__(self, color) -> None:
         self.color = color
-        self.pion = self.make_team()
+        self.pions = []
+        #self.pion = self.make_team()
     
     def make_team(self):
         """Generate the full team with accurate coordonates
@@ -20,16 +21,16 @@ class Equipe():
         if (self.color == "red"):
             return [Pion(x = i, y = (END_OF_BOARD - j)) for j in range(INIT_X) for i in range(INIT_Y)]
 
-        # Generate White teams
+        # Generate black teams
         return [Pion(x = i, y = j) for j in range(INIT_X) for i in range(INIT_Y)]
     
-    def get_pion(self):
+    def get_pions(self):
         """Get list of all pions of a team
 
         Returns:
             list: all remaining Jetons objects of a given team
         """
-        return self.pion
+        return self.pions
     
     def get_color(self):
         """Get color of team
@@ -46,6 +47,14 @@ class Equipe():
             bool: if the number of player in a team is zero
         """
         return len(self.pion) == 0
+    
+    def add_jeton(self, jeton):
+        """Add a jeton to the pions teams
+
+        Args:
+            jeton (Jeton): New Jeton
+        """
+        self.pions.append(jeton)
     
     @classmethod
     def __get_images_dict(cls, team_color, piece_category):
