@@ -5,6 +5,8 @@ from Equipe import Equipe
 class JeuDeDame(Tk):
     def __init__(self, titre):
         super().__init__()
+        
+        # Generate general attributes
         self.title(titre)
         self.side = 650
         self.number_of_squares = 10
@@ -17,6 +19,9 @@ class JeuDeDame(Tk):
         # Generate attributes with relation to other classes
         self.damier = Damier()
         self.main_frame = Frame(master = self, width = self.side, height = self.side)
+        
+        # Generati attributes depending on other classes
+        self.turn = self.damier.get_turn()
         
         # Miscellaneous functions
         self.make_board()
@@ -84,20 +89,20 @@ class JeuDeDame(Tk):
         infos = event.widget.grid_info()
         x, y = infos['row'], infos['column']
         square = self.damier.get_square(x=x, y=y)
+        
         canvas = self.board[int(str(x) + str(y))]
         
         if canvas in self.highlighted : self.click_highlighted(new_square=square)
-        elif square not in self.highlighted : self.click_select(square=square)
+        elif canvas not in self.highlighted : self.click_select(square=square)       
         
-        
-    def  click_highlighted(self, new_square):
+    def click_highlighted(self, new_square):
         """Action to follow if the click was on an highlighted square
         """
         self.damier.move_pieces(current_square=self.selected, new_square=new_square)
         self.remove_highlight()
-        self.move(index_remove = int(str(self.selected.get_x()) + str(self.selected.get_y())), 
-                  index_add = int(str(new_square.get_x()) + str(new_square.get_y())),
-                  team_color=new_square.get_jeton().get_color())
+        self.move_image(index_remove = int(str(self.selected.get_x()) + str(self.selected.get_y())), 
+                        index_add = int(str(new_square.get_x()) + str(new_square.get_y())),
+                        team_color=new_square.get_jeton().get_color())
     
     def click_select(self, square):
         """Select the square that has been clicked on.
@@ -106,6 +111,9 @@ class JeuDeDame(Tk):
             infos (dict): Information about the canvas that has been clicked on.
         """
         self.remove_highlight()
+        if square.get_jeton().get_color() != self.turn: 
+            self.remove_highlight()
+            return
         self.selected = square
         if (square.is_occupied()): self.highlight_moves(x=square.get_x(), y=square.get_y(), 
                                                         team_color=square.get_jeton().get_color(),
@@ -120,17 +128,11 @@ class JeuDeDame(Tk):
             team_color = square.get_jeton().get_color()
             x, y = square.get_x(), square.get_y()
             
-            # Get information for the Jeton's images
-            img = Equipe.get_images(team_color=team_color, piece_category='reg')
-            
             # Retrieve corresponding canvas
             canvas = self.board[int(str(x) + str(y))]
             
-            # Create an image item on the Canvas
-            canvas.create_image(self.length_img/2, self.length_img/2, anchor=CENTER, image=img)
-
-            # Store the image reference in the canvas (optional but can be useful)
-            canvas.image = img
+            # Add image on a given canvas
+            self.add_image(canvas=canvas, team_color=team_color, piece_category='reg')
                 
     def highlight_moves(self, x, y, team_color, square):
         """Highlight squares with corresponding moves
@@ -169,12 +171,20 @@ class JeuDeDame(Tk):
     def remove_selected(self):
         self.selected = None
         
-    def move(self, index_remove, index_add, team_color):
+    def move_image(self, index_remove, index_add, team_color):
+        """ List of command to move a given image from a canvas to another
+
+        Args:
+            index_remove (int): index of the canvas on which to remove an image
+            index_add (int): index of the canvas on which to add an image
+            team_color (str): black or red, represent the team color
+        """
         self.remove_image(canvas = self.board[index_remove])
         self.add_image(canvas = self.board[index_add], 
                        team_color = team_color,
                        piece_category='reg')
         self.update_canvas(to_updates = [self.board[index_add], self.board[index_remove]])
+        self.update_turn()
         
     def remove_image(self, canvas):
         """Remove image from a given canvas
@@ -185,15 +195,26 @@ class JeuDeDame(Tk):
         canvas.delete('all')
     
     def add_image(self, canvas, team_color, piece_category):
-        """Add images on a given c
+        """Add image on a given canvas
 
         Args:
-            canvas (_type_): _description_
-            team_color (_type_): _description_
+            canvas (Canvas): canvas on which to add the image
+            team_color (str): black or red, represent the team color
+            piece_category (str): type of piece. Either Pion or Dame.
         """
         img = Equipe.get_images(team_color=team_color, piece_category=piece_category)
         canvas.create_image(self.length_img/2, self.length_img/2, anchor=CENTER, image=img)
         canvas.image = img
         
     def update_canvas(self, to_updates):
+        """Update de canvas which add changes on their image
+
+        Args:
+            to_updates (list): Canvas to update
+        """
         for canvas in to_updates : canvas.update()
+        
+    def update_turn(self):
+        """Update who's turn it is
+        """
+        self.turn = self.damier.get_turn()

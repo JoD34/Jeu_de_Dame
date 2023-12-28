@@ -6,7 +6,7 @@ import sys
 class Damier():
     def __init__(self) -> None:
         self.squares = self.create_board()
-        self.turn = ['white', 'red']
+        self.turn = ['red', 'black']
         self.teams = {"red": Equipe("red"), "black": Equipe("black")}
         
         # Set pions
@@ -124,7 +124,7 @@ class Damier():
     def next_turn(self):
         """Switch turn.
         """
-        self.turn = self.turn[-1:]
+        self.turn = self.turn[::-1]
         
     def move_pieces(self, current_square, new_square):
         """_summary_
@@ -140,3 +140,7 @@ class Damier():
         # Add jeton to new square
         new_square.set_jeton(jeton)
         jeton.set_case(new_square)
+        
+        # Switch turns
+        self.next_turn()
+        
