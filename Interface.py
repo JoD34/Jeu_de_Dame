@@ -8,6 +8,7 @@ class JeuDeDame(Tk):
         
         # Generate general attributes
         self.title(titre)
+        self.iconphoto(False, Equipe.get_images(team_color='red', piece_category='queen'))
         self.side = 650
         self.number_of_squares = 10
         self.length_img = self.side / self.number_of_squares
@@ -78,6 +79,7 @@ class JeuDeDame(Tk):
         """Switch turn order keeper
         """
         self.turn = self.turn[-1: ]
+        self.set_highlight_forced_moves()
         
     def click(self, event = None):
         """Get info of mouse click.
@@ -145,23 +147,24 @@ class JeuDeDame(Tk):
         diags = self.damier.get_diagonal_squares(x=x, y=y, 
                                                  team_color=team_color, 
                                                  square=square)
-        left, right = diags['left'], diags['right']
-        if left is not None : self.__highlight_square(square=left)
-        if right is not None : self.__highlight_square(square=right)
+        for value in diags.values():
+            if value is not None : 
+                self.__highlight_square(square=value, action='move')
 
-    def __highlight_square(self, square):
+    def __highlight_square(self, square, action):
         """Highlight squares for moves
 
         Args:
             square (Case): square in damier
         """
-        # Get index data
-        index = int(str(square.get_x()) + str(square.get_y()))
-        
-        # Assigned highlight
-        canva = self.board[index]
-        canva.config(bg=self.colors["move"])
-        self.highlighted.append(canva)
+        for i in square:
+            # Get index data
+            index = int(str(square.get_x()) + str(square.get_y()))
+            
+            # Assigned highlight
+            canva = self.board[index]
+            canva.config(bg=self.colors[action])
+            self.highlighted.append(canva)
         
     def remove_highlight(self):
         """remove highlight on square
@@ -222,3 +225,10 @@ class JeuDeDame(Tk):
         
     def check_jeton_color(self, case, color):
         return case.get_jeton().get_color() == color
+    
+    def set_highlight_forced_moves(self):
+        """ Get forced take squares to highlight
+        """
+        cases = self.damier.get_forced_moves(team_color = self.turn[0])
+        if not cases: self.__highlight_square(squares = cases)
+        
