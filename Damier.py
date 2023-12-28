@@ -145,7 +145,15 @@ class Damier():
         self.next_turn()
       
     def see_force_moves(self, color):
-        pass
+        """Get force takes
+
+        Args:
+            color (str): team color of which team's turn it is
+
+        Returns:
+            list: Cases included in force moves
+        """
+        return res
     
     def take_pion(self, taker, taken, team_color):
         """Changes jetons position for a take movement
@@ -157,7 +165,7 @@ class Damier():
         """
         # Get move modification to add to the current position of taker
         move_y = (taken.get_y() - taker.get_y()) * 2
-        move_x = '+2' if team_color == 'black' else '-2'
+        move_x = 2 if team_color == 'black' else -2
         
         # Remove taken jeton from case
         taken.get_case().remove_jeton()
@@ -169,10 +177,65 @@ class Damier():
         
         # Set new information to the taker pions
         taker.set_y(new_y = taker.get_y() + move_y)
-        taker.set_x(new_x = taker.get_x() + int(move_x))
+        taker.set_x(new_x = taker.get_x() + move_x)
         
         # Check if game is over
         print(team.has_lost())
         
+    def get_case_for_takes(self, team_color):
+        """Get square for takes
+
+        Args:
+            team_color (str): color of pion
+
+        Returns:
+            list: all square which can be taken
+        """
+        res = []
+        moves = 1 if team_color == 'black' else -1
         
+        # Parse all square on the board
+        for square in self.board:
+            
+            # Interact with squares that contain pion of a given team only
+            if square.get_jeton().get_color() != team_color: continue
+            
+            # set x on which to look upon
+            x = square.get_x() + moves
+            
+            # Parse the two columns to looks
+            for num in [1, -1]:
+                case = self.__get_square_takes(x = x, y = square.get_y() + num, 
+                                               next_x = moves, next_y = num, 
+                                               current = square)
+                if not case: 
+                    for i in case: res.append(i)
+                
+        return res
+            
+    def __get_square_takes(self, x, y, current, next_x, next_y):
+        """_summary_
+
+        Args:
+            x (int): position in x of taken square
+            y (int): position in y of taken square
+            current (Case): Square from which the move originates
+            next_x (int): x changes in for the x value for the landing strip
+            next_y (int): y changes in for the y value for the landing strip
+
+        Returns:
+            list: Case for valid moves
+        """
+        # Check if column index is out of bound
+        if ((y + 1 >= 10) or (y - 1 < 0)): return []
         
+        # Get squares
+        square_to_take = self.get_square(x=x, y=y) 
+        square_to_land = self.get_square(x = x + next_x, y = y + next_y)
+    
+        # Return if square should be highlighted
+        valid = square_to_take if (square_to_take.is_occupied() and 
+                                   not self.__check_if_friend(current=current, 
+                                                              square=square_to_take)) else None
+        # Return if take is valid and landing spot is open
+        return [] if ((valid is None) or not square_to_land.is_occupied()) else [square_to_land, square_to_take]
