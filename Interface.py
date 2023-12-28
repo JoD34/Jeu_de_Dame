@@ -1,6 +1,7 @@
 from tkinter import *
 from Damier import Damier
 from Equipe import Equipe
+import sys
 
 class JeuDeDame(Tk):
     def __init__(self, titre):
@@ -89,11 +90,15 @@ class JeuDeDame(Tk):
         infos = event.widget.grid_info()
         x, y = infos['row'], infos['column']
         square = self.damier.get_square(x=x, y=y)
-        
+
         canvas = self.board[int(str(x) + str(y))]
         
         if canvas in self.highlighted : self.click_highlighted(new_square=square)
-        elif canvas not in self.highlighted : self.click_select(square=square)       
+        elif canvas not in self.highlighted :
+            if ((square.get_jeton() is None) or not self.check_jeton_color(case = square, color = self.turn)): 
+                self.remove_highlight()
+                return
+            self.click_select(square=square)       
         
     def click_highlighted(self, new_square):
         """Action to follow if the click was on an highlighted square
@@ -111,9 +116,6 @@ class JeuDeDame(Tk):
             infos (dict): Information about the canvas that has been clicked on.
         """
         self.remove_highlight()
-        if square.get_jeton().get_color() != self.turn: 
-            self.remove_highlight()
-            return
         self.selected = square
         if (square.is_occupied()): self.highlight_moves(x=square.get_x(), y=square.get_y(), 
                                                         team_color=square.get_jeton().get_color(),
@@ -218,3 +220,6 @@ class JeuDeDame(Tk):
         """Update who's turn it is
         """
         self.turn = self.damier.get_turn()
+        
+    def check_jeton_color(self, case, color):
+        return case.get_jeton().get_color() == color
