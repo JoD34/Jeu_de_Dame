@@ -8,8 +8,8 @@ class JeuDeDame(Tk):
         self.title(titre)
         self.side = 650
         self.number_of_squares = 10
+        self.length_img = self.side / self.number_of_squares
         self.colors = {'pale' : "#edd2a7", 'fonce' : "#a24e31", 'highlighted' : 'lightblue'}
-        self.select_piece = False
         self.selected = None
         self.highlighted = []
         self.board = []
@@ -80,23 +80,34 @@ class JeuDeDame(Tk):
         Args:
             event : Click of the mouse. Defaults to None.
         """
+        # Get square info
+        infos = event.widget.grid_info()
+        x, y = infos['row'], infos['column']
+        square = self.damier.get_square(x=x, y=y)
+        canvas = self.board[int(str(x) + str(y))]
         
-        self.click_select(event.widget.grid_info())
+        if canvas in self.highlighted : self.click_highlighted(new_square=square)
+        elif square not in self.highlighted : self.click_select(square=square)
         
-    def  click_highlighted(self):
+        
+    def  click_highlighted(self, new_square):
+        """Action to follow if the click was on an highlighted square
+        """
+        self.damier.move_pieces(current_square=self.selected, new_square=new_square)
         self.remove_highlight()
+        self.move(index_remove = int(str(self.selected.get_x()) + str(self.selected.get_y())), 
+                  index_add = int(str(new_square.get_x()) + str(new_square.get_y())),
+                  team_color=new_square.get_jeton().get_color())
     
-    def click_select(self, infos):
+    def click_select(self, square):
         """Select the square that has been clicked on.
 
         Args:
             infos (dict): Information about the canvas that has been clicked on.
         """
-        x, y = infos['row'], infos['column']
-        square = self.damier.get_square(x=x, y=y)
+        self.remove_highlight()
         self.selected = square
-
-        if (square.is_occupied()): self.highlight_moves(x=x, y=y, 
+        if (square.is_occupied()): self.highlight_moves(x=square.get_x(), y=square.get_y(), 
                                                         team_color=square.get_jeton().get_color(),
                                                         square = square)
     
@@ -110,14 +121,13 @@ class JeuDeDame(Tk):
             x, y = square.get_x(), square.get_y()
             
             # Get information for the Jeton's images
-            length = self.side / self.number_of_squares
             img = Equipe.get_images(team_color=team_color, piece_category='reg')
             
             # Retrieve corresponding canvas
             canvas = self.board[int(str(x) + str(y))]
             
             # Create an image item on the Canvas
-            canvas.create_image(length/2, length/2, anchor=CENTER, image=img)
+            canvas.create_image(self.length_img/2, self.length_img/2, anchor=CENTER, image=img)
 
             # Store the image reference in the canvas (optional but can be useful)
             canvas.image = img
@@ -154,6 +164,36 @@ class JeuDeDame(Tk):
         """remove highlight on square
         """
         for canvas in self.highlighted: canvas.config(bg = self.colors['fonce'])
+        self.highlighted = []
+    
+    def remove_selected(self):
+        self.selected = None
         
-    def move(self):
-        pass
+    def move(self, index_remove, index_add, team_color):
+        self.remove_image(canvas = self.board[index_remove])
+        self.add_image(canvas = self.board[index_add], 
+                       team_color = team_color,
+                       piece_category='reg')
+        self.update_canvas(to_updates = [self.board[index_add], self.board[index_remove]])
+        
+    def remove_image(self, canvas):
+        """Remove image from a given canvas
+
+        Args:
+            canvas (Canvas): canvas on which the image will be deleted
+        """
+        canvas.delete('all')
+    
+    def add_image(self, canvas, team_color, piece_category):
+        """Add images on a given c
+
+        Args:
+            canvas (_type_): _description_
+            team_color (_type_): _description_
+        """
+        img = Equipe.get_images(team_color=team_color, piece_category=piece_category)
+        canvas.create_image(self.length_img/2, self.length_img/2, anchor=CENTER, image=img)
+        canvas.image = img
+        
+    def update_canvas(self, to_updates):
+        for canvas in to_updates : canvas.update()

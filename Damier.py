@@ -125,3 +125,18 @@ class Damier():
         """Switch turn.
         """
         self.turn = self.turn[-1:]
+        
+    def move_pieces(self, current_square, new_square):
+        """_summary_
+
+        Args:
+            current_square (_type_): _description_
+            new_square (_type_): _description_
+        """
+        # Remove jeton from current square
+        jeton = current_square.get_jeton()
+        current_square.remove_jeton()
+    
+        # Add jeton to new square
+        new_square.set_jeton(jeton)
+        jeton.set_case(new_square)
