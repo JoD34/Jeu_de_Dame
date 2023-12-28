@@ -144,7 +144,7 @@ class Damier():
         # Switch turns
         self.next_turn()
       
-    def see_force_moves(self, color):
+    def see_forced_moves(self, color):
         """Get force takes
 
         Args:
