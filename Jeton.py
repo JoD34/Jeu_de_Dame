@@ -1,10 +1,12 @@
 
 class Jeton:
-    def __init__(self, x, y, type) -> None:
+    def __init__(self, x, y, type, case, color) -> None:
         self.type = type
-        self.move = None
+        self.move = []
         self.x = x
         self.y = y
+        self.case = case
+        self.color = color
     
     def get_move(self):
         """Get the possible moves in x
@@ -37,6 +39,22 @@ class Jeton:
             int: y value of the position of the token
         """
         return self.y
+    
+    def get_case(self):
+        """Get Case on witch the pion is standing
+
+        Returns:
+            Case: Case on witch the pion is standing
+        """
+        return self.case
+    
+    def get_color(self):
+        """Get color associated to current Jeton.
+
+        Returns:
+            str: Color of the team in which the Jeton is.
+        """
+        return self.color
         
     def set_type(self, new_type):
         """Set type of piece
@@ -68,7 +86,15 @@ class Jeton:
         Args:
             new_y (int): new value of the token on the y axis
         """
-        self.y = new_y    
+        self.y = new_y 
+    
+    def set_case(self, new_case):
+        """Set a new case on witch the pion is standing
+
+        Args:
+            new_case (Case): New case on witch the pion is standing
+        """
+        self.case = new_case
     
     def get_valid_moves(self):
         return([(i, i) for i in self.move])
