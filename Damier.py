@@ -143,4 +143,36 @@ class Damier():
         
         # Switch turns
         self.next_turn()
+      
+    def see_force_moves(self, color):
+        pass
+    
+    def take_pion(self, taker, taken, team_color):
+        """Changes jetons position for a take movement
+
+        Args:
+            taker (Jeton): Jeton information for the jeton that is taking
+            taken (Jeton): Jeton information for the jeton that is taken
+            team_color (str): information about the movement of the current pion
+        """
+        # Get move modification to add to the current position of taker
+        move_y = (taken.get_y() - taker.get_y()) * 2
+        move_x = '+2' if team_color == 'black' else '-2'
+        
+        # Remove taken jeton from case
+        taken.get_case().remove_jeton()
+        
+        # Get infos to remove the pion from the stake
+        team_color = taken.get_jeton().get_color()
+        team = self.teams[team_color]
+        team.remove[team.index(taken)]
+        
+        # Set new information to the taker pions
+        taker.set_y(new_y = taker.get_y() + move_y)
+        taker.set_x(new_x = taker.get_x() + int(move_x))
+        
+        # Check if game is over
+        print(team.has_lost())
+        
+        
         
