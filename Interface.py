@@ -1,7 +1,6 @@
 from tkinter import *
 from Damier import Damier
 from Equipe import Equipe
-import sys
 
 class JeuDeDame(Tk):
     def __init__(self, titre):
@@ -12,7 +11,7 @@ class JeuDeDame(Tk):
         self.side = 650
         self.number_of_squares = 10
         self.length_img = self.side / self.number_of_squares
-        self.colors = {'pale' : "#edd2a7", 'fonce' : "#a24e31", 'highlighted' : 'lightblue'}
+        self.colors = {'pale' : "#edd2a7", 'fonce' : "#a24e31", 'move' : '#B5EDF9', 'take' : '#F7A2A1'}
         self.selected = None
         self.highlighted = []
         self.board = []
@@ -134,7 +133,7 @@ class JeuDeDame(Tk):
             canvas = self.board[int(str(x) + str(y))]
             
             # Add image on a given canvas
-            self.add_image(canvas=canvas, team_color=team_color, piece_category='reg')
+            self.__add_image(canvas=canvas, team_color=team_color, piece_category='reg')
                 
     def highlight_moves(self, x, y, team_color, square):
         """Highlight squares with corresponding moves
@@ -161,7 +160,7 @@ class JeuDeDame(Tk):
         
         # Assigned highlight
         canva = self.board[index]
-        canva.config(bg=self.colors["highlighted"])
+        canva.config(bg=self.colors["move"])
         self.highlighted.append(canva)
         
     def remove_highlight(self):
@@ -181,14 +180,14 @@ class JeuDeDame(Tk):
             index_add (int): index of the canvas on which to add an image
             team_color (str): black or red, represent the team color
         """
-        self.remove_image(canvas = self.board[index_remove])
-        self.add_image(canvas = self.board[index_add], 
+        self.__remove_image(canvas = self.board[index_remove])
+        self.__add_image(canvas = self.board[index_add], 
                        team_color = team_color,
                        piece_category='reg')
-        self.update_canvas(to_updates = [self.board[index_add], self.board[index_remove]])
-        self.update_turn()
+        self.__update_canvas(to_updates = [self.board[index_add], self.board[index_remove]])
+        self.__update_turn()
         
-    def remove_image(self, canvas):
+    def __remove_image(self, canvas):
         """Remove image from a given canvas
 
         Args:
@@ -196,7 +195,7 @@ class JeuDeDame(Tk):
         """
         canvas.delete('all')
     
-    def add_image(self, canvas, team_color, piece_category):
+    def __add_image(self, canvas, team_color, piece_category):
         """Add image on a given canvas
 
         Args:
@@ -208,7 +207,7 @@ class JeuDeDame(Tk):
         canvas.create_image(self.length_img/2, self.length_img/2, anchor=CENTER, image=img)
         canvas.image = img
         
-    def update_canvas(self, to_updates):
+    def __update_canvas(self, to_updates):
         """Update de canvas which add changes on their image
 
         Args:
@@ -216,7 +215,7 @@ class JeuDeDame(Tk):
         """
         for canvas in to_updates : canvas.update()
         
-    def update_turn(self):
+    def __update_turn(self):
         """Update who's turn it is
         """
         self.turn = self.damier.get_turn()
