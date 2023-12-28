@@ -143,17 +143,6 @@ class Damier():
         
         # Switch turns
         self.next_turn()
-      
-    def see_forced_moves(self, color):
-        """Get force takes
-
-        Args:
-            color (str): team color of which team's turn it is
-
-        Returns:
-            list: Cases included in force moves
-        """
-        return res
     
     def take_pion(self, taker, taken, team_color):
         """Changes jetons position for a take movement
@@ -182,7 +171,7 @@ class Damier():
         # Check if game is over
         print(team.has_lost())
         
-    def get_case_for_takes(self, team_color):
+    def get_forced_moves(self, team_color):
         """Get square for takes
 
         Args:
