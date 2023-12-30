@@ -1,6 +1,7 @@
 from tkinter import *
 from Damier import Damier
 from Equipe import Equipe
+from itertools import product
 
 class JeuDeDame(Tk):
     def __init__(self, titre):
@@ -87,17 +88,20 @@ class JeuDeDame(Tk):
         square = self.damier.get_square(x=x, y=y)
 
         # Get corresponding canvas
-        canvas = self.board[int(f"{x}{y}")]
-        
-        # Bloke move to only those with takes possibility
-        if self.takes:
-            if canvas in self.takes and not square.is_occupied():
-                print(self.selected)
-                self.click_take(canvas = canvas, square = square)
+        canvas = self.get_canvas_from_case(case=square)
+
+        # Restricted moves to the forced moves
+        if self.damier.restricted:
+            if self.selected is None: self.selected = square
+            else:
+                print(f'x = {self.selected.get_x()}, y = {self.selected.get_y()}')
+                self.click_take(canvas=canvas, square=square)
                 self.remove_selected()
 
         # Clicks for moving pieces
-        elif canvas in self.moves : self.click_highlighted(new_square=square)
+        elif canvas in self.moves :
+            self.click_highlighted(new_square=square)
+            self.remove_selected()
         
         # Clicks to see move possibilities
         elif canvas not in self.moves :
@@ -110,7 +114,7 @@ class JeuDeDame(Tk):
         self.refresh_board()
         # Get next turn
         self.__update_turn()
-        
+
     def click_highlighted(self, new_square):
         """Action to follow if the click was on an highlighted square
         """
@@ -121,9 +125,9 @@ class JeuDeDame(Tk):
         self.moves = self.remove_highlight(list_to_empty = self.moves)
         
         # move the image of a piece between 2 canvas
-        self.move_image(index_remove = int(f"{self.selected.get_x()}{self.selected.get_y()}"), 
-                        index_add = int(f"{new_square.get_x()}{new_square.get_y()}"),
-                        team_color = new_square.get_jeton().get_color())
+        self.move_image(canvas_remove = self.get_canvas_from_case(self.selected),
+                        canvas_add = self.get_canvas_from_case(new_square),
+                        team_color = self.turn)
         
         # Check for forced moves once the table have turns
         self.set_highlight_forced_moves()
@@ -144,21 +148,18 @@ class JeuDeDame(Tk):
         if square.is_occupied(): self.highlight_moves(square=square)
     
     def __init_positions(self):
-        """Initiat the position of pieces for the beginning of play
+        """
+        Initialize the pieces for the beginning of play
         """
         for square in self.damier.get_squares():
-            # If no jeton present on square , go to next square
             if not square.is_occupied(): continue
             
-            # Get informations on Jeton object present on current square
-            team_color = square.get_jeton().get_color()
-            x, y = square.get_x(), square.get_y()
-            
             # Retrieve corresponding canvas
-            canvas = self.board[int(str(x) + str(y))]
+            canvas = self.get_canvas_from_case(case=square)
             
             # Add image on a given canvas
-            self.__add_image(canvas=canvas, team_color=team_color, piece_category='reg')
+            self.__add_image(canvas=canvas,
+                             team_color=square.get_jeton().get_color())
                 
     def highlight_moves(self, square):
         """
@@ -174,16 +175,17 @@ class JeuDeDame(Tk):
         # Highlight square if the move is available
         for value in diags.values():
             if value :
-                self.__highlight_square(square=value, action='move')
+                self.__highlight_square(square=value,
+                                        action='move')
 
     def __highlight_square(self, square, action):
-        """Highlight squares for moves
-
-        Args:
-            square (Case): square in damier
+        """
+        Highlight canvas representing a possible move
+        :param square: square analogue of canvas to be highlighted
+        :param action: Either 'take' or 'move; Affect the highlighted color used
         """
         # Get corresponding canvas to highlight
-        canva = self.board[int(f"{square.get_x()}{square.get_y()}")]
+        canva = self.get_canvas_from_case(square)
         
         # Switch configuration to highlight
         canva.config(bg=self.colors[action])
@@ -192,56 +194,49 @@ class JeuDeDame(Tk):
         self.moves.append(canva) if action == 'move' else self.takes.append(canva)
         
     def remove_highlight(self, list_to_empty):
-        """remove highlight on square
         """
-        # Get canvas present in a given list
-        for canvas in list_to_empty: 
-            
-            # Remove the highlighted background
+        Remove highlight on canvas of a given list
+        :param list_to_empty: list to empty. Either the takes list or the moves list
+        """
+        for canvas in list_to_empty:
             canvas.config(bg = self.colors['fonce'])
-        
-        # Return an empty list 
+
         return []
     
     def remove_selected(self):
-        """Empty the selected attribute
+        """
+        Empty the selected attribute
         """
         self.selected = None
         
-    def move_image(self, index_remove, index_add, team_color):
-        """ List of command to move a given image from a canvas to another
-
-        Args:
-            index_remove (int): index of the canvas on which to remove an image
-            index_add (int): index of the canvas on which to add an image
-            team_color (str): black or red, represent the team color
+    def move_image(self, canvas_remove, canvas_add, team_color):
+        """
+        List of command to move a given image from a canvas to another.
+        :param canvas_remove: Canvas object on which to remove an image.
+        :param canvas_add: Canvas object on which to add an image.
+        :param team_color: Represent the team color. Can either be black or red.
         """
         # Do corresponding action to the canvas
-        self.__remove_image(canvas = self.board[index_remove])
-        self.__add_image(canvas = self.board[index_add],
-                         team_color = team_color, piece_category='reg')
+        self.__remove_image(canvas = canvas_remove)
+        self.__add_image(canvas = canvas_add, team_color = team_color, piece_category='reg')
         
-        # Update the image presented to the user
+        # Updates
         self.__update_canvas()
-        
-        # Update turns
         self.__update_turn()
         
     def __remove_image(self, canvas):
-        """Remove image from a given canvas
-
-        Args:
-            canvas (Canvas): canvas on which the image will be deleted
+        """
+        Remove image from a given canvas
+        :param canvas: Canvas object on which the image will be deleted
         """
         canvas.delete('all')
     
     def __add_image(self, canvas, team_color, piece_category='reg'):
-        """Add image on a given canvas
-
-        Args:
-            canvas (Canvas): canvas on which to add the image
-            team_color (str): black or red, represent the team color
-            piece_category (str): type of piece. Either Pion or Dame.
+        """
+        Add image on a given canvas
+        :param canvas: Canvas object on which to add the image
+        :param team_color: Either black or red
+        :param piece_category: type of piece. Either Pion or Dame
         """
         # Get image
         img = Equipe.get_images(team_color=team_color, piece_category=piece_category)
@@ -253,90 +248,57 @@ class JeuDeDame(Tk):
         canvas.image = img
         
     def __update_canvas(self):
-        """Update de canvas which add changes on their image
-
-        Args:
-            to_updates (list): Canvas to update
+        """
+        Update de canvas which add changes on their image
         """
         for canvas in range(len(self.board)) :
             if self.damier.get_squares()[canvas].is_occupied():
                 self.board[canvas].update()
         
     def __update_turn(self):
-        """Update who's turn it is
+        """
+        Get matching turn as the Damier object
         """
         self.turn = self.damier.get_turn()
         
     def check_jeton_color(self, case, color):
-        """Check if the jeton's color correspond to a given color
-
-        Args:
-            case (Case): Case to check the jeton that's on
-            color (str): team color. Either red or black
-
-        Returns:
-            bool: True if the jeton's color is the same as the color argument. False otherwise
+        """
+        Check if the jeton's color correspond to a given color
+        :param case: Case to check the jeton that's on
+        :param color: team color. Either red or black
+        :return: (bool) True if it's the same color. False otherwise
         """
         return case.get_jeton().get_color() == color
     
     def set_highlight_forced_moves(self):
-        """ Get forced take squares to highlight
         """
-        # Get the squares corresponding to forced moves
-        cases = self.damier.get_forced_moves()
-        
-        # If the list isn't empty
-        if cases: 
-            # highlight square with the appropriate color
-            for case in cases: self.__highlight_square(square = case, action='take')
-            
-    def get_origin_and_mid_piece_take(self, canvas):
-        """Intermediate function, get square to make move
-
-        Args:
-            canvas (Canvas): canvas on witch the click event happended
-
-        Returns:
-            Case: The square on which the canvas correspond
+        Highlight squares corresponding to all forced moves
         """
-        # Get canvas corresponding to the given take
-        index = self.takes.index(canvas)
-        canvas_res = self.takes[index - 1]
-        
-        # Get infos for both the canvas
-        canvas = canvas.grid_info()
-        canvas_mid = canvas_res.grid_info()
-
-        # Get Case object of origin
-        case = self.damier.get_square(x = canvas_mid['row'] - (canvas['row'] - canvas_mid['row']),
-                                      y = canvas_mid['column'] - (canvas['column'] - canvas_mid['column']))
-        # Assign self.selected to origin pion
-        self.selected = case.get_jeton()
-
-        # Return corresponding square
-        return canvas_res, case
+        for key, values in self.damier.restricted.items():
+            self.__highlight_square(square=key, action='take')
+            for _, value in values.items():
+                self.__highlight_square(square=value, action='take')
         
     def click_take(self, canvas, square):
-        """Action to follow when the click event correspond to taking a piece
-
-        Args:
-            canvas (Canvas): _description_
-            square (Case): _description_
         """
-        # Get information on mid and origin square of the move
-        mid_canvas, self.selected = self.get_origin_and_mid_piece_take(canvas = canvas)
+        List of command when the click event correspond to taking a piece
+        :param canvas: Canavas object of the click event
+        :param square: Case object of the click event
+        """
+        # Get needed info on all squares present in a take
+        takes = self.damier.restricted[self.selected]['take']
+        land =  self.damier.restricted[self.selected]['land']
         color = self.selected.get_jeton().get_color()
 
         # Move images
-        self.__remove_image(mid_canvas)
-        self.move_image(index_remove = int(f"{self.selected.get_x()}{self.selected.get_y()}"), 
-                        index_add = int(f"{square.get_x()}{square.get_y()}"),
+        self.__remove_image(self.get_canvas_from_case(takes))
+        self.move_image(canvas_remove = self.get_canvas_from_case(self.selected),
+                        canvas_add = self.get_canvas_from_case(land),
                         team_color = color)
         
         # Remove Jeton from list of team
-        taker_jeton = self.selected.get_jeton()
-        self.damier.take_pion(taker=taker_jeton,
-                              taken=self.get_case_from_canvas(mid_canvas).get_jeton(),
+        self.damier.take_pion(taker=self.selected.get_jeton(),
+                              taken=takes.get_jeton(),
                               team_color=color)
         
         # Switch turn
@@ -348,17 +310,21 @@ class JeuDeDame(Tk):
         # Reiterate the force move if necessary
         self.set_highlight_forced_moves()
 
-        
     def get_case_from_canvas(self, canvas):
-        """Get Case object corresponding to the canvas pass as argument
-
-        Args:
-            canvas (Canvas): Canvas on witch action of taking begins
-
-        Returns:
-            Case: Case corresponding to the canvas
+        """
+        Get Case object corresponding to the canvas pass as argument
+        :param canvas: Canvas object on witch action of taking begins
+        :return: Case corresponding to the canvas
         """
         return self.damier.get_squares()[self.board.index(canvas)]
+
+    def get_canvas_from_case(self, case):
+        """
+        Get Canvas object corresponding to the Case object
+        :param case: Case object reprented by the canvas on the board
+        :return: Canvas object representing the case in the damier
+        """
+        return self.board[self.damier.get_squares().index(case)]
 
     def refresh_board(self):
         for i in range(10):
