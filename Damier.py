@@ -206,14 +206,16 @@ class Damier():
             # Interact with squares that contain pion of a given team only
             if not square.is_occupied() or square.get_jeton().get_color() != self.turn[0]: continue
 
-            # set x on which to look upon
+            # set x on which to look for new squares
             x = square.get_x() + move_x
 
-            # Parse the two columns to looks
+            # Parse the diagonal squares to look for valid takes
             for i in [1, -1]:
-                takes = self.__get_square_takes(x=x, y=square.get_y() + i, next_x=move_x, next_y=i, current=square)
-                if takes and square not in self.allowed_selected:
-                    res.extend(takes)
+                dict_take = self.__get_square_takes(x=x, y=square.get_y() + i, next_x=move_x, next_y=i, current=square)
+
+                # If a valid move exist: add it to the list and add it to list of possible takers
+                if dict_take and square not in self.allowed_selected:
+                    res.extend(dict_take)
                     self.allowed_selected.append(square)
         return res
 
@@ -228,24 +230,22 @@ class Damier():
             next_y (int): y changes in for the y value for the landing strip
 
         Returns:
-            list: Case for valid moves
+            dict: path of a valid take for a jeton of origin
         """
         # Check if column index is out of bound
-        if (y + 1 >= 10) or (y - 1 < 0): return []
+        if (y + 1 >= 10) or (y - 1 < 0): return {}
 
-        my_jeton = current.get_jeton()
         # Get squares
         square_to_take = self.get_square(x=x, y=y)
-        jeton_to_take = square_to_take.get_jeton()
         square_to_land = self.get_square(x=x + next_x, y=y + next_y)
 
         # Check if take is valid
         valid = (square_to_take.is_occupied() and
                  not square_to_land.is_occupied() and
-                 not my_jeton.check_mate(other=jeton_to_take ))
+                 not current.get_jeton().is_mate(other=square_to_take.get_jeton()))
 
-        # Return the list of squares in the valid take
-        return [] if not valid else [square_to_land, square_to_take]
+        # Return the dict of a valid take
+        return {'origin': current, 'track': {'take': square_to_take, 'land': square_to_land}} if valid else {}
 
     def print_game(self):
         """
