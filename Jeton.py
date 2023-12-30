@@ -118,7 +118,7 @@ class Jeton:
     def see_available_takes(self, board):
         pass
 
-    def check_mate(self, other):
+    def is_mate(self, other):
         """
         Check if two jetons are from the same team
         :param other: jeton to compare team belonging
