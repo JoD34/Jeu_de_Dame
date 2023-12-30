@@ -52,7 +52,7 @@ class JeuDeDame(Tk):
             for j in range(self.number_of_squares):
                 
                 # Create frame
-                canvas = Canvas(self.main_frame, 
+                canvas = Canvas(master = self.main_frame,
                                 width = SIDE_SQUARE, 
                                 height = SIDE_SQUARE, 
                                 highlightthickness = 0,
@@ -62,7 +62,10 @@ class JeuDeDame(Tk):
                 canvas.grid(row = i, column = j)
                 
                 # Bind the click event to the Canvas
-                if (i + j) % 2 != 0 : canvas.bind("<Button-1>", self.click)
+                if (i + j) % 2 != 0 :
+                    canvas.bind("<Button-1>", self.click)
+                    case = self.damier.get_square(x=i, y=j)
+                    case.set_canvas(canvas)
                 
                 # Append canvas to canvas list
                 self.board.append(canvas)
@@ -87,24 +90,21 @@ class JeuDeDame(Tk):
         x, y = infos['row'], infos['column']
         square = self.damier.get_square(x=x, y=y)
 
-        # Get corresponding canvas
-        canvas = self.get_canvas_from_case(case=square)
-
         # Restricted moves to the forced moves
         if self.damier.restricted:
             if self.selected is None: self.selected = square
             else:
                 print(f'x = {self.selected.get_x()}, y = {self.selected.get_y()}')
-                self.click_take(canvas=canvas, square=square)
+                self.click_take(square=square)
                 self.remove_selected()
 
         # Clicks for moving pieces
-        elif canvas in self.moves :
+        elif square.get_canvas() in self.moves :
             self.click_highlighted(new_square=square)
             self.remove_selected()
         
         # Clicks to see move possibilities
-        elif canvas not in self.moves :
+        elif square.get_canvas() not in self.moves :
             if (square.get_jeton() is None) or not self.check_jeton_color(case = square, color = self.turn):
                 self.moves = self.remove_highlight(list_to_empty = self.moves)
                 return
@@ -125,8 +125,8 @@ class JeuDeDame(Tk):
         self.moves = self.remove_highlight(list_to_empty = self.moves)
         
         # move the image of a piece between 2 canvas
-        self.move_image(canvas_remove = self.get_canvas_from_case(self.selected),
-                        canvas_add = self.get_canvas_from_case(new_square),
+        self.move_image(canvas_remove = self.selected.get_canvas(),
+                        canvas_add = new_square.get_canvas(),
                         team_color = self.turn)
         
         # Check for forced moves once the table have turns
@@ -154,11 +154,8 @@ class JeuDeDame(Tk):
         for square in self.damier.get_squares():
             if not square.is_occupied(): continue
             
-            # Retrieve corresponding canvas
-            canvas = self.get_canvas_from_case(case=square)
-            
             # Add image on a given canvas
-            self.__add_image(canvas=canvas,
+            self.__add_image(canvas=square.get_canvas(),
                              team_color=square.get_jeton().get_color())
                 
     def highlight_moves(self, square):
@@ -185,7 +182,7 @@ class JeuDeDame(Tk):
         :param action: Either 'take' or 'move; Affect the highlighted color used
         """
         # Get corresponding canvas to highlight
-        canva = self.get_canvas_from_case(square)
+        canva = square.get_canvas()
         
         # Switch configuration to highlight
         canva.config(bg=self.colors[action])
@@ -279,10 +276,9 @@ class JeuDeDame(Tk):
             for _, value in values.items():
                 self.__highlight_square(square=value, action='take')
         
-    def click_take(self, canvas, square):
+    def click_take(self, square):
         """
         List of command when the click event correspond to taking a piece
-        :param canvas: Canavas object of the click event
         :param square: Case object of the click event
         """
         # Get needed info on all squares present in a take
@@ -291,9 +287,9 @@ class JeuDeDame(Tk):
         color = self.selected.get_jeton().get_color()
 
         # Move images
-        self.__remove_image(self.get_canvas_from_case(takes))
-        self.move_image(canvas_remove = self.get_canvas_from_case(self.selected),
-                        canvas_add = self.get_canvas_from_case(land),
+        self.__remove_image(takes.get_canvas())
+        self.move_image(canvas_remove = self.selected.get_canvas(),
+                        canvas_add = land.get_canvas(),
                         team_color = color)
         
         # Remove Jeton from list of team
@@ -317,14 +313,6 @@ class JeuDeDame(Tk):
         :return: Case corresponding to the canvas
         """
         return self.damier.get_squares()[self.board.index(canvas)]
-
-    def get_canvas_from_case(self, case):
-        """
-        Get Canvas object corresponding to the Case object
-        :param case: Case object reprented by the canvas on the board
-        :return: Canvas object representing the case in the damier
-        """
-        return self.board[self.damier.get_squares().index(case)]
 
     def refresh_board(self):
         for i in range(10):
