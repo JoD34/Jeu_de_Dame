@@ -5,7 +5,6 @@ class Equipe():
     def __init__(self, color) -> None:
         self.color = color
         self.pions = []
-        #self.pion = self.make_team()
     
     def make_team(self):
         """Generate the full team with accurate coordonates
@@ -46,7 +45,7 @@ class Equipe():
         Returns:
             bool: if the number of player in a team is zero
         """
-        return len(self.pion) == 0
+        return len(self.pions) == 0
     
     def add_jeton(self, jeton):
         """Add a jeton to the pions teams
@@ -55,6 +54,15 @@ class Equipe():
             jeton (Jeton): New Jeton
         """
         self.pions.append(jeton)
+        
+    def remove_jeton(self, jeton):
+        """Remove a jeton from the team
+
+        Args:
+            jeton (Jeton): Piece to be remove from the board and the team
+        """
+        print(f"Removing Jeton from Case ({jeton.x}, {jeton.y})")
+        self.pions.remove(jeton)
     
     @classmethod
     def __get_images_dict(cls, team_color, piece_category):

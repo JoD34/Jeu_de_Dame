@@ -86,7 +86,17 @@ class Jeton:
         Args:
             new_y (int): new value of the token on the y axis
         """
-        self.y = new_y 
+        self.y = new_y
+
+    def set_x_y(self, new_x, new_y):
+        """
+        Set new value of x and y attributs at once
+        :param new_x: new x coordinate
+        :param new_y: new y coordinate
+        :return:
+        """
+        self.x = new_x
+        self.y = new_y
     
     def set_case(self, new_case):
         """Set a new case on witch the pion is standing
@@ -95,9 +105,23 @@ class Jeton:
             new_case (Case): New case on witch the pion is standing
         """
         self.case = new_case
-    
+
+    def delete_jeton(self):
+        """
+        Delete the current jeton
+        :return: None
+        """
+        del self
     def get_valid_moves(self):
         return([(i, i) for i in self.move])
     
     def see_available_takes(self, board):
         pass
+
+    def check_mate(self, other):
+        """
+        Check if two jetons are from the same team
+        :param other: jeton to compare team belonging
+        :return: boolean. True if teammate, False otherwis
+        """
+        return self.get_color() == other.get_color()

@@ -56,6 +56,7 @@ class Case:
     def remove_jeton(self):
         """Remove Jeton
         """
+
         self.jeton = None
     
     def is_occupied(self):
@@ -65,3 +66,5 @@ class Case:
             bool: True if occupied; False if not.
         """
         return self.jeton is not None
+
+
