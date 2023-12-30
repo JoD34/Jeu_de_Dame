@@ -4,6 +4,7 @@ class Case:
         self.x = x
         self.y = y
         self.jeton = None
+        self.canvas = None
     
     def get_x(self):
         """Get position of x value.
@@ -28,6 +29,13 @@ class Case:
             Jeton: current Jeton on the squre
         """
         return self.jeton
+
+    def get_canvas(self):
+        """
+        Get Canvas objects related to this case
+        :return: Canvas objects related to this case
+        """
+        return self.canvas
     
     def set_x(self, new_x):
         """Set new position in x.
@@ -52,6 +60,13 @@ class Case:
             jeton (Jeton): Jeton place on the Case. Can be an object of type Pion or Dame
         """
         self.jeton = jeton
+
+    def set_canvas(self, new_canvas):
+        """
+        Set a canvas to the current Case object
+        :param new_canvas: Canvas object to set as canvas attribut
+        """
+        self.canvas = new_canvas
         
     def remove_jeton(self):
         """Remove Jeton
