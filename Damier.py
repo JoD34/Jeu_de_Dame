@@ -19,50 +19,35 @@ class Damier():
         self.init_pions('black')
 
     def get_square(self, x, y):
-        """Access a given square on the board.
-
-        Args:
-            x (int): position in x on the board.
-            y (int): position in y on the board.
-
-        Returns:
-            Case: case on the board.
+        """
+        Access a specific Case object in the Damier class
+        :param x: (int) position in x on the board.
+        :param y: (int) position in y on the board
+        :return: Case object at the given position
         """
         return self.squares[int(f"{x}{y}")]
 
     def get_squares(self):
-        """Get the list of squares present in the damier
-
-        Returns:
-            list: All Case objects making up the damier
+        """
+        Get the list of Case objects representing the damier
+        :return: (list) All Case objects making up the damier
         """
         return self.squares
 
-    def create_square(self, x, y):
-        """Create a square
-
-        Args:
-            x (int): position in x on the board.
-            y (int): position in y on the board.
-            color (str): set color of the square.
-        """
-        return Case(x=x, y=y)
-
     def create_board(self):
-        """Create the entire board with the squares
         """
-        return [self.create_square(x=i, y=j) for i in range(self.square_per_side) for j in range(self.square_per_side)]
+        Create the entire board with the squares
+        :return: (list) all the Case objects representing the board
+        """
+        return [Case(x=i, y=j) for i in range(self.square_per_side) for j in range(self.square_per_side)]
 
     def get_diagonal_squares(self, x, y, team_color):
-        """Get diagonal squares of a given square.
-
-        Args:
-            x (int): row in the damier
-            y (int): column in the damier
-            team_color (str): color of team
-
-        Returns:
-            dict: squares retrieved
+        """
+        Get diagonal squares of a given square.
+        :param x: (int) row of the damier
+        :param y: (int) column of the damier
+        :param team_color: (str) color of team; either red or black
+        :return: (dict) squares retrieved
         """
         # Correction of x depending on team's color
         x = x + 1 if team_color == 'black' else x - 1
@@ -88,10 +73,9 @@ class Damier():
         return None if square.is_occupied() else square
 
     def init_pions(self, team_color):
-        """Initiate pions, there position and there relation to a case
-
-        Args:
-            team_color (str): color corresponding to one of two teams
+        """
+        Initialize pions, there position and there relation to a case
+        :param team_color: (str) color of either team; red or black
         """
         beg_x, end_x = (0, 4) if team_color == 'black' else (6, 10)
 
@@ -114,24 +98,23 @@ class Damier():
                 self.teams[team_color].add_jeton(pion)
 
     def get_turn(self):
-        """Get which team color is it to play.
-
-        Returns:
-            str: color of the team.
+        """
+        Get which team color is it to play.
+        :return: (str) color of the team.
         """
         return self.turn[0]
 
     def next_turn(self):
-        """Switch turn.
+        """
+        Switch turn.
         """
         self.turn.reverse()
 
     def move_pieces(self, current_square, new_square):
-        """List of actions representing a move
-
-        Args:
-            current_square (_type_): _description_
-            new_square (_type_): _description_
+        """
+        List of actions representing a move
+        :param current_square: Case object where the move begin
+        :param new_square: Case object where the move end
         """
         # Remove jeton from current square
         jeton = current_square.get_jeton()
