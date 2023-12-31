@@ -80,10 +80,9 @@ class JeuDeDame(Tk):
         self.resizable(width = False, height = False) 
         
     def click(self, event = None):
-        """Get info of mouse click.
-
-        Args:
-            event : Click of the mouse. Defaults to None.
+        """
+        List of command depending on the user input
+        :param event: Click of the mouse. Defaults to None.
         """
         # Get square info
         infos = event.widget.grid_info()
@@ -114,7 +113,9 @@ class JeuDeDame(Tk):
         self.__update_turn()
 
     def click_highlighted(self, new_square):
-        """Action to follow if the click was on an highlighted square
+        """
+        Action to follow if the click was on an highlighted square
+        :param new_square: square on which to move the piece on self.selected
         """
         # Move piece between 2 squares
         self.damier.move_pieces(current_square=self.selected, new_square=new_square)
@@ -144,7 +145,33 @@ class JeuDeDame(Tk):
 
         # Once the piece has been selected, highlight its possible moves
         if square.is_occupied(): self.highlight_moves(square=square)
-    
+
+    def click_take(self, path):
+        """
+        List of command when the click event correspond to taking a piece
+        :param square: Case object of the click event
+        """
+        # Get needed info on all squares present in a take
+        color = self.selected.get_jeton().get_color()
+
+        # Move images
+        self.__remove_image(path['take'].get_canvas())
+        self.move_image(canvas_remove=self.selected.get_canvas(),
+                        canvas_add=path['land'].get_canvas(),
+                        team_color=color)
+
+        # Remove Jeton from list of team
+        self.damier.take_pion(taker=self.selected, path=path, team_color=color)
+
+        # Switch turn
+        self.turn = self.damier.get_turn()
+
+        # Correct the argument to remove_highlight
+        self.takes = self.remove_highlight(list_to_empty=self.takes)
+
+        # Reiterate the force move if necessary
+        self.set_highlight_forced_moves()
+
     def __init_positions(self):
         """
         Initialize the pieces for the beginning of play
@@ -161,17 +188,12 @@ class JeuDeDame(Tk):
         Highlight background of canvas presenting valid moves
         :param square: square of self.damier presenting a valid moves
         """
-        
         # Get diagonal squares presenting possible moves
-        diags = self.damier.get_diagonal_squares(x=square.get_x(),
-                                                 y=square.get_y(),
-                                                 team_color=self.turn)
+        diags = self.damier.get_diagonal_squares(x=square.get_x(), y=square.get_y(), team_color=self.turn)
         
         # Highlight square if the move is available
         for value in diags.values():
-            if value :
-                self.__highlight_square(square=value,
-                                        action='move')
+            if value : self.__highlight_square(square=value, action='move')
 
     def __highlight_square(self, square, action):
         """
@@ -193,9 +215,7 @@ class JeuDeDame(Tk):
         Remove highlight on canvas of a given list
         :param list_to_empty: list to empty. Either the takes list or the moves list
         """
-        for canvas in list_to_empty:
-            canvas.config(bg = self.colors['fonce'])
-
+        for canvas in list_to_empty: canvas.config(bg = self.colors['fonce'])
         return []
     
     def remove_selected(self):
@@ -211,11 +231,9 @@ class JeuDeDame(Tk):
         :param canvas_add: Canvas object on which to add an image.
         :param team_color: Represent the team color. Can either be black or red.
         """
-        # Do corresponding action to the canvas
         self.__remove_image(canvas = canvas_remove)
         self.__add_image(canvas = canvas_add, team_color = team_color, piece_category='reg')
-        
-        # Updates
+
         self.__update_canvas()
         self.__update_turn()
         
@@ -273,39 +291,3 @@ class JeuDeDame(Tk):
             self.__highlight_square(square=key, action='take')
             for _, value in values.items():
                 self.__highlight_square(square=value, action='take')
-        
-    def click_take(self, path):
-        """
-        List of command when the click event correspond to taking a piece
-        :param square: Case object of the click event
-        """
-        # Get needed info on all squares present in a take
-        color = self.selected.get_jeton().get_color()
-
-        # Move images
-        self.__remove_image(path['take'].get_canvas())
-        self.move_image(canvas_remove = self.selected.get_canvas(),
-                        canvas_add = path['land'].get_canvas(),
-                        team_color = color)
-        
-        # Remove Jeton from list of team
-        self.damier.take_pion(taker=self.selected,
-                              path=path,
-                              team_color=color)
-        
-        # Switch turn
-        self.turn = self.damier.get_turn()
-        
-        # Correct the argument to remove_highlight
-        self.takes = self.remove_highlight(list_to_empty=self.takes)
-        
-        # Reiterate the force move if necessary
-        self.set_highlight_forced_moves()
-
-    def get_case_from_canvas(self, canvas):
-        """
-        Get Case object corresponding to the canvas pass as argument
-        :param canvas: Canvas object on witch action of taking begins
-        :return: Case corresponding to the canvas
-        """
-        return self.damier.get_squares()[self.board.index(canvas)]
