@@ -1,4 +1,5 @@
 from Pion import Pion
+from Dame import Dame
 from PIL import ImageTk, Image
 
 class Equipe():
@@ -62,7 +63,23 @@ class Equipe():
             jeton (Jeton): Piece to be remove from the board and the team
         """
         self.pions.remove(jeton)
-    
+
+    def pion_to_queen(self, pion):
+        """
+        Switch a type 'Pion' to a type 'Dame'
+        :param pion: Pion object to switch to a Dame object in the team setup
+        """
+        index = self.pions.index(pion)
+
+        # Switch pion's information to the Dame object
+        queen = Dame(x=pion.get_x(), y=pion.get_y(), case=pion.get_case(), color=pion.get_color())
+        pion.get_case(queen).set_jeton(queen)
+        self.pions[index] = queen
+
+        # Deleter Pion object
+        pion.delete_jeton()
+
+
     @classmethod
     def __get_images_dict(cls, team_color, piece_category):
         img_paths = ["images\\red_regular-no_bg.png", "images\\red_queen-no_bg.png",
