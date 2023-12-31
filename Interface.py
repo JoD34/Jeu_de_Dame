@@ -289,8 +289,8 @@ class JeuDeDame(Tk):
         """
         Highlight squares corresponding to all forced moves
         """
-        for key, values in self.damier.restricted.items():
+        for key, paths in self.damier.restricted.items():
             self.__highlight_square(square=key, action='take')
-            for path in values:
-                for square in ['take', 'land']:
-                    self.__highlight_square(square=path[square], action='take')
+            for path in paths:
+                for square, case in path.items():
+                        self.__highlight_square(square=case, action='take')
