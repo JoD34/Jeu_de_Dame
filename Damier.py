@@ -156,8 +156,8 @@ class Damier():
     def take_pion(self, taker, path, team_color):
         """
         Changes jetons position for a take movement
-        :param taker: Jeton object, capturing the other jeton
-        :param path: Jeton object being taken
+        :param taker: Case object from which originate the take
+        :param path: Dict; Case object presented in the taking
         :param team_color: red or black; color of the taker
         """
         # Get move modification to add to the current position of taker
@@ -171,12 +171,10 @@ class Damier():
         # Check if team has lost
         self.teams[team_color].has_lost()
 
-        for key, value in self.teams.items():
-            print(f"{key}: {len(value.get_pions())}")
-        print(sum([1 for pion in self.squares if pion.is_occupied()]))
-
+        # Get extra take
+        self.get_extra_take(square=path['land'])
         # Switch turn
-        self.next_turn()
+        if not self.restricted: self.next_turn()
 
         # Get forced moves for the next team to play
         self.get_forced_moves()
@@ -193,34 +191,20 @@ class Damier():
         for square in self.squares:
             # Interact with squares that contain pion of a given team only
             if not square.is_occupied() or square.get_jeton().get_color() != self.turn[0]: continue
-            # set x on which to look for new squares
-            x = square.get_x() + move_x
-
-            # Parse the diagonal squares to look for valid takes
-            for i in [1, -1]:
-                dict_take = self.__get_square_takes(x=x, y=square.get_y() + i, next_x=move_x, next_y=i, current=square)
-                # If a valid move exist: add the origin to the obligatory moves and update the dict accordingly
-                if dict_take:
-                    if not (square in self.restricted.keys()):
-                        self.restricted.update(dict_take)
-                    else:
-                        self.restricted[square].update(dict_take[square])
+            self.generate_dict_taking(square=square, move_x=move_x)
 
     def __get_square_takes(self, x, y, next_x, next_y, current):
-        """ Get the detail of the squares in a valid take
-
-        Args:
-            x (int): position in x of taken square
-            y (int): position in y of taken square
-            next_x (int): x variation for the landing spot
-            next_y (int): y variation for the landing spot
-            current (Case): Square from which the move originates
-
-        Returns:
-            dict: path of a valid take for a jeton of origin
+        """
+        Get the detail of the squares in a valid take
+        :param x: position in x of taken square
+        :param y: position in y of taken square
+        :param next_x: x variation for the landing spot
+        :param next_y: y variation for the landing spot
+        :param current:  Square from which the move originates
+        :return: (Dict) path of a valid take for a jeton of origin
         """
         # Check if column index is out of bound
-        if (y + 1 >= 10) or (y - 1 < 0): return {}
+        if (y + 1 >= 10) or (y - 1 < 0) or (x - 1 < 0) or (x + 1 >= 10): return {}
 
         # Get squares
         square_to_take = self.get_square(x=x, y=y)
@@ -251,4 +235,27 @@ class Damier():
             print(row)
         print('-' * 21)
 
+    def get_extra_take(self, square):
+        """
+        Refresh restricted attribute if an extra take from an obligatory move is possible
+        :param square: Case object on which the first take landed
+        """
+        self.restricted = {}
+        move_x = 1 if self.turn[0] == 'black' else -1
+        self.generate_dict_taking(square=square, move_x=move_x)
 
+    def generate_dict_taking(self, square, move_x):
+        """
+        Make a dictionary of available moves and update the dictionary restricted attributes
+        :param square: Case object from where the takes beginning
+        :param move_x: Movement of the piece in the x-axis
+        """
+        for i in [1, -1]:
+            x, y = square.get_x() + move_x, square.get_y() + i
+            dict_take = self.__get_square_takes(x=x, y=y, next_x=move_x, next_y=i, current=square)
+            # If a valid move exist: add the origin to the obligatory moves and update the dict accordingly
+            if dict_take:
+                if not (square in self.restricted.keys()):
+                    self.restricted.update(dict_take)
+                else:
+                    self.restricted[square].update(dict_take[square])
