@@ -2,6 +2,7 @@ from Pion import Pion
 from Dame import Dame
 from PIL import ImageTk, Image
 
+
 class Equipe():
     def __init__(self, color) -> None:
         self.color = color

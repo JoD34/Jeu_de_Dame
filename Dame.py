@@ -1,4 +1,5 @@
-import Jeton
+from Jeton import Jeton
+
 
 class Dame(Jeton):
     def __init__(self, x, y, case, color) -> None:
