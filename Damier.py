@@ -151,16 +151,20 @@ class Damier():
         path['land'].set_jeton(taker.get_jeton())
         taker.remove_jeton()
 
+        # Set new x and y coordinates to the taker piece
+        jeton = path['land'].get_jeton()
+        jeton.set_x(path['land'].get_x())
+        jeton.set_y(path['land'].get_y())
+
         # Check if team has lost
         self.teams[team_color].has_lost()
 
         # Get extra take
         self.get_extra_take(square=path['land'])
         # Switch turn
-        if not self.restricted: self.next_turn()
-
-        # Get forced moves for the next team to play
-        self.get_forced_moves()
+        if not self.restricted:
+            self.next_turn()
+            self.get_forced_moves()
 
         self.print_game()
 
@@ -236,9 +240,23 @@ class Damier():
         for i in [1, -1]:
             x, y = square.get_x() + move_x, square.get_y() + i
             dict_take = self.__get_square_takes(x=x, y=y, next_x=move_x, next_y=i, current=square)
+
             # If a valid move exist: add the origin to the obligatory moves and update the dict accordingly
             if dict_take:
-                if not (square in self.restricted.keys()):
-                    self.restricted.update(dict_take)
+                if square in self.restricted.keys():
+                    for val in self.restricted:
+                        print(val)
+                    # Check if path is already in the dictionary
+                    path_already_exists = any(
+                        self.restricted[square]['land'] == dict_take[square]['land']
+                        and self.restricted[square]['take'] != dict_take[square]['take']
+                        for value in self.restricted[square].values()
+                    )
+
+                    # Only append if the take path doesn't already exist
+                    if not path_already_exists:
+                        self.restricted[square].update(dict_take[square])
+
                 else:
-                    self.restricted[square].update(dict_take[square])
+                    # Append a new path to the dictionary
+                    self.restricted.update(dict_take)
