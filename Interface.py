@@ -94,8 +94,10 @@ class JeuDeDame(Tk):
             if self.selected is None: self.selected = square
             else:
                 sub_dict = self.damier.restricted[self.selected]
-                if sub_dict['land']  == square or sub_dict['take'] == square:
-                    self.click_take(path=sub_dict)
+                for path in sub_dict:
+                    if path['land']  == square or path['take'] == square:
+                        self.click_take(path=path)
+                        break
                 self.remove_selected()
 
         # Clicks for moving pieces
@@ -289,5 +291,6 @@ class JeuDeDame(Tk):
         """
         for key, values in self.damier.restricted.items():
             self.__highlight_square(square=key, action='take')
-            for _, value in values.items():
-                self.__highlight_square(square=value, action='take')
+            for path in values:
+                for square in ['take', 'land']:
+                    self.__highlight_square(square=path[square], action='take')

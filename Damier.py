@@ -203,7 +203,7 @@ class Damier():
                  not current.get_jeton().is_mate(other=square_to_take.get_jeton()))
 
         # Return the dict of a valid take
-        return {current: {'take': square_to_take, 'land': square_to_land}} if valid else {}
+        return {current: [{'take': square_to_take, 'land': square_to_land}]} if valid else {}
 
     def print_game(self):
         """
@@ -244,18 +244,15 @@ class Damier():
             # If a valid move exist: add the origin to the obligatory moves and update the dict accordingly
             if dict_take:
                 if square in self.restricted.keys():
-                    for val in self.restricted:
-                        print(val)
+                    new_path = dict_take[square][0]
                     # Check if path is already in the dictionary
                     path_already_exists = any(
-                        self.restricted[square]['land'] == dict_take[square]['land']
-                        and self.restricted[square]['take'] != dict_take[square]['take']
-                        for value in self.restricted[square].values()
+                        value['land'] == new_path['land'] and value['take'] != new_path['take']
+                        for value in self.restricted[square]
                     )
-
                     # Only append if the take path doesn't already exist
                     if not path_already_exists:
-                        self.restricted[square].update(dict_take[square])
+                        self.restricted[square].append(new_path)
 
                 else:
                     # Append a new path to the dictionary
