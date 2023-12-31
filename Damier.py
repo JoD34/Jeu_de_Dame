@@ -7,13 +7,12 @@ class Damier():
     def __init__(self) -> None:
         # Constant attributes
         self.square_per_side = 10
-        self.allowed_selected = []
+        self.restricted = {}
+
         # Attributes for generating runnin the game
         self.squares = self.create_board()
         self.turn = ['red', 'black']
-        self.teams = {"red": Equipe("red"), "black": Equipe("black")}
-        self.token_to_play = []
-        self.forced_moves = {}
+        self.teams = {"red": Equipe(color="red"), "black": Equipe(color="black")}
 
         # Set pions
         self.init_pions('red')
@@ -149,33 +148,26 @@ class Damier():
         # Switch turns
         self.next_turn()
 
+        # Get forced moves for the next team to play
+        self.get_forced_moves()
+
         self.print_game()
 
-    def take_pion(self, taker, taken, team_color):
-        """Changes jetons position for a take movement
-
-        Args:
-            taker (Jeton): Jeton that is capturing the other jeton
-            taken (Jeton): Jeton that is being taken
-            team_color (str): information about the movement of the current pion
+    def take_pion(self, taker, path, team_color):
+        """
+        Changes jetons position for a take movement
+        :param taker: Jeton object, capturing the other jeton
+        :param path: Jeton object being taken
+        :param team_color: red or black; color of the taker
         """
         # Get move modification to add to the current position of taker
-        move_y = (taken.get_y() - taker.get_y()) * 2
-        move_x = 2 if team_color == 'black' else -2
+        self.teams[self.turn[1]].remove_jeton(path['take'].get_jeton())
 
         # Remove taken jeton from cases
-        taken.get_case().remove_jeton()
-        taker.get_case().remove_jeton()
+        path['take'].remove_jeton()
+        path['land'].set_jeton(taker.get_jeton())
+        taker.remove_jeton()
 
-        # Get infos to remove the pion from the stake
-        team_color = taken.get_color()
-        self.teams[team_color].remove_jeton(taken)
-
-        # Set new information to the taker pion
-        new_x, new_y = taker.get_x() + move_x, taker.get_y() + move_y
-        taker.set_x_y(new_x, new_y)
-        self.get_square(x=new_x, y=new_y).set_jeton(taker)
-        taken.delete_jeton()
         # Check if team has lost
         self.teams[team_color].has_lost()
 
@@ -186,48 +178,43 @@ class Damier():
         # Switch turn
         self.next_turn()
 
+        # Get forced moves for the next team to play
+        self.get_forced_moves()
+
         self.print_game()
 
     def get_forced_moves(self):
-        """Get square for takes
-
-        Args:
-            team_color (str): color of pion
-
-        Returns:
-            list: all square which can be taken
         """
-        res, self.allowed_selected = [], []
+        Get a dictionary of available takes
+        """
+        self.restricted = {}
         move_x = 1 if self.turn[0] == 'black' else -1
 
-        # Parse all square on the board
         for square in self.squares:
-
             # Interact with squares that contain pion of a given team only
             if not square.is_occupied() or square.get_jeton().get_color() != self.turn[0]: continue
-
             # set x on which to look for new squares
             x = square.get_x() + move_x
 
             # Parse the diagonal squares to look for valid takes
             for i in [1, -1]:
                 dict_take = self.__get_square_takes(x=x, y=square.get_y() + i, next_x=move_x, next_y=i, current=square)
+                # If a valid move exist: add the origin to the obligatory moves and update the dict accordingly
+                if dict_take:
+                    if not (square in self.restricted.keys()):
+                        self.restricted.update(dict_take)
+                    else:
+                        self.restricted[square].update(dict_take[square])
 
-                # If a valid move exist: add it to the list and add it to list of possible takers
-                if dict_take and square not in self.allowed_selected:
-                    res.extend(dict_take)
-                    self.allowed_selected.append(square)
-        return res
-
-    def __get_square_takes(self, x, y, current, next_x, next_y):
-        """_summary_
+    def __get_square_takes(self, x, y, next_x, next_y, current):
+        """ Get the detail of the squares in a valid take
 
         Args:
             x (int): position in x of taken square
             y (int): position in y of taken square
+            next_x (int): x variation for the landing spot
+            next_y (int): y variation for the landing spot
             current (Case): Square from which the move originates
-            next_x (int): x changes in for the x value for the landing strip
-            next_y (int): y changes in for the y value for the landing strip
 
         Returns:
             dict: path of a valid take for a jeton of origin
@@ -245,7 +232,7 @@ class Damier():
                  not current.get_jeton().is_mate(other=square_to_take.get_jeton()))
 
         # Return the dict of a valid take
-        return {'origin': current, 'track': {'take': square_to_take, 'land': square_to_land}} if valid else {}
+        return {current: {'take': square_to_take, 'land': square_to_land}} if valid else {}
 
     def print_game(self):
         """

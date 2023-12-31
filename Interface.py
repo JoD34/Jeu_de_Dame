@@ -94,8 +94,9 @@ class JeuDeDame(Tk):
         if self.damier.restricted:
             if self.selected is None: self.selected = square
             else:
-                print(f'x = {self.selected.get_x()}, y = {self.selected.get_y()}')
-                self.click_take(square=square)
+                sub_dict = self.damier.restricted[self.selected]
+                if sub_dict['land']  == square or sub_dict['take'] == square:
+                    self.click_take(path=sub_dict)
                 self.remove_selected()
 
         # Clicks for moving pieces
@@ -109,9 +110,6 @@ class JeuDeDame(Tk):
                 self.moves = self.remove_highlight(list_to_empty = self.moves)
                 return
             self.click_select(square=square)
-
-        # Refreshed images on the canvas
-        self.refresh_board()
         # Get next turn
         self.__update_turn()
 
@@ -276,25 +274,23 @@ class JeuDeDame(Tk):
             for _, value in values.items():
                 self.__highlight_square(square=value, action='take')
         
-    def click_take(self, square):
+    def click_take(self, path):
         """
         List of command when the click event correspond to taking a piece
         :param square: Case object of the click event
         """
         # Get needed info on all squares present in a take
-        takes = self.damier.restricted[self.selected]['take']
-        land =  self.damier.restricted[self.selected]['land']
         color = self.selected.get_jeton().get_color()
 
         # Move images
-        self.__remove_image(takes.get_canvas())
+        self.__remove_image(path['take'].get_canvas())
         self.move_image(canvas_remove = self.selected.get_canvas(),
-                        canvas_add = land.get_canvas(),
+                        canvas_add = path['land'].get_canvas(),
                         team_color = color)
         
         # Remove Jeton from list of team
-        self.damier.take_pion(taker=self.selected.get_jeton(),
-                              taken=takes.get_jeton(),
+        self.damier.take_pion(taker=self.selected,
+                              path=path,
                               team_color=color)
         
         # Switch turn
@@ -313,22 +309,3 @@ class JeuDeDame(Tk):
         :return: Case corresponding to the canvas
         """
         return self.damier.get_squares()[self.board.index(canvas)]
-
-    def refresh_board(self):
-        for i in range(10):
-            for j in range (10):
-                index = int(f"{i}{j}")
-                canvas = self.board[index]
-                square = self.damier.get_squares()[index]
-                if not square.is_occupied():
-                    if not self.is_canvas_empty(canvas):
-                        canvas.delete('all')
-                        canvas.update()
-                    continue
-                color = square.get_jeton().get_color()
-                self.__add_image(canvas=canvas, team_color=color)
-                canvas.update()
-
-    def is_canvas_empty(self, canvas):
-        items = canvas.find_enclosed(0, 0, canvas.winfo_reqwidth(), canvas.winfo_reqheight())
-        return not items

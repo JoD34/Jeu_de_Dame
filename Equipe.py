@@ -61,15 +61,12 @@ class Equipe():
         Args:
             jeton (Jeton): Piece to be remove from the board and the team
         """
-        print(f"Removing Jeton from Case ({jeton.x}, {jeton.y})")
         self.pions.remove(jeton)
     
     @classmethod
     def __get_images_dict(cls, team_color, piece_category):
-        img_paths = ["C:\\Users\\josep\\Documents\\prog_projects\\images\\red_regular-no_bg.png",
-                     "C:\\Users\\josep\\Documents\\prog_projects\\images\\red_queen-no_bg.png",
-                     "C:\\Users\\josep\\Documents\\prog_projects\\images\\black_regular-no_bg.png",
-                     "C:\\Users\\josep\\Documents\\prog_projects\\images\\black_queen-no_bg.png"]
+        img_paths = ["images\\red_regular-no_bg.png", "images\\red_queen-no_bg.png",
+                     "images\\black_regular-no_bg.png", "images\\black_queen-no_bg.png"]
         try:
             images_dict = {'red': {'reg': Image.open(img_paths[0]), 'queen': Image.open(img_paths[1])},
                            'black': {'reg': Image.open(img_paths[2]), 'queen': Image.open(img_paths[3])}}
