@@ -107,7 +107,7 @@ class JeuDeDame(Tk):
         
         # Clicks to see move possibilities
         elif square.get_canvas() not in self.moves :
-            if (square.get_jeton() is None) or not self.check_jeton_color(case = square, color = self.turn):
+            if ((square.get_jeton() is None) or not (square.get_jeton().get_color() == self.turn)):
                 self.moves = self.remove_highlight(list_to_empty = self.moves)
                 return
             self.click_select(square=square)
@@ -275,15 +275,6 @@ class JeuDeDame(Tk):
         Get matching turn as the Damier object
         """
         self.turn = self.damier.get_turn()
-        
-    def check_jeton_color(self, case, color):
-        """
-        Check if the jeton's color correspond to a given color
-        :param case: Case to check the jeton that's on
-        :param color: team color. Either red or black
-        :return: (bool) True if it's the same color. False otherwise
-        """
-        return case.get_jeton().get_color() == color
     
     def set_highlight_forced_moves(self):
         """
