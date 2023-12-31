@@ -91,7 +91,8 @@ class JeuDeDame(Tk):
 
         # Restricted moves to the forced moves
         if self.damier.restricted:
-            if self.selected is None: self.selected = square
+            if self.selected is None:
+                if square.is_occupied() and square.get_jeton().get_color() == self.turn: self.selected = square
             else:
                 sub_dict = self.damier.restricted[self.selected]
                 for path in sub_dict:
@@ -107,7 +108,7 @@ class JeuDeDame(Tk):
         
         # Clicks to see move possibilities
         elif square.get_canvas() not in self.moves :
-            if ((square.get_jeton() is None) or not (square.get_jeton().get_color() == self.turn)):
+            if (square.get_jeton() is None or square.get_jeton().get_color() != self.turn):
                 self.moves = self.remove_highlight(list_to_empty = self.moves)
                 return
             self.click_select(square=square)
