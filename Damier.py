@@ -266,6 +266,13 @@ class Damier():
                     self.restricted.update(dict_take)
 
     def check_if_queened(self, pion):
+        """
+        Check if the pion has reach the last row for queening
+        :param pion: pion that is moved; either by taking or moving
+        """
+        # If already a queen, don't mind me
+        if isinstance(pion, Dame): return
+
         team = self.teams[pion.get_color()]
 
         # Get infos on a pion
@@ -274,6 +281,3 @@ class Damier():
         # Check if queening
         if (way == 'up' and x == 0) or (way == 'down' and x == 10):
             team.pion_to_queen(pion=pion)
-
-        print(f'num of player = {sum([1 for pion in team.get_pions()])}')
-        print(f'num of queen = {sum([isinstance(pion, Dame) for pion in team.get_pions()])}')
