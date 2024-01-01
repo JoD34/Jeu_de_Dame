@@ -5,7 +5,7 @@ class Pion(Jeton):
     def __init__(self, x, y, case, color) -> None:
         super().__init__(x=x, y=y, type="pion", case=case, color=color)
         self.direction = 'up' if color == 'red' else 'down'
-        self.move = [0, -1] if color == 'red' else [0, 1]
+        self.move = [-1] if color == 'red' else [1]
 
     def get_direction(self):
         """
