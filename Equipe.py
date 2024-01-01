@@ -74,7 +74,7 @@ class Equipe():
 
         # Switch pion's information to the Dame object
         queen = Dame(x=pion.get_x(), y=pion.get_y(), case=pion.get_case(), color=pion.get_color())
-        pion.get_case(queen).set_jeton(queen)
+        pion.get_case().set_jeton(queen)
         self.pions[index] = queen
 
         # Deleter Pion object
@@ -86,8 +86,8 @@ class Equipe():
         img_paths = ["images\\red_regular-no_bg.png", "images\\red_queen-no_bg.png",
                      "images\\black_regular-no_bg.png", "images\\black_queen-no_bg.png"]
         try:
-            images_dict = {'red': {'reg': Image.open(img_paths[0]), 'queen': Image.open(img_paths[1])},
-                           'black': {'reg': Image.open(img_paths[2]), 'queen': Image.open(img_paths[3])}}
+            images_dict = {'red': {'Pion': Image.open(img_paths[0]), 'Dame': Image.open(img_paths[1])},
+                           'black': {'Pion': Image.open(img_paths[2]), 'Dame': Image.open(img_paths[3])}}
             
             return images_dict[team_color][piece_category]
         
@@ -96,6 +96,6 @@ class Equipe():
     
     @classmethod
     def get_images(cls, team_color, piece_category):
-        img = cls.__get_images_dict(team_color = team_color, piece_category = piece_category)
-        img = img.resize(size = (50, 50))
+        img = cls.__get_images_dict(team_color=team_color, piece_category=piece_category)
+        img = img.resize(size=(50, 50))
         return ImageTk.PhotoImage(img)

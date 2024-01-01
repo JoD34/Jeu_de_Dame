@@ -1,6 +1,7 @@
 from Case import Case
 from Equipe import Equipe
 from Pion import Pion
+from Dame import Dame
 
 
 class Damier():
@@ -128,6 +129,9 @@ class Damier():
         jeton.set_x(new_square.get_x())
         jeton.set_y(new_square.get_y())
 
+
+        self.check_if_queened(pion=jeton)
+
         # Switch turns
         self.next_turn()
 
@@ -163,6 +167,7 @@ class Damier():
         self.get_extra_take(square=path['land'])
         # Switch turn
         if not self.restricted:
+            self.check_if_queened(pion=jeton)
             self.next_turn()
             self.get_forced_moves()
 
@@ -244,12 +249,14 @@ class Damier():
             # If a valid move exist: add the origin to the obligatory moves and update the dict accordingly
             if dict_take:
                 if square in self.restricted.keys():
-                    new_path = dict_take[square][0]
+
                     # Check if path is already in the dictionary
+                    new_path = dict_take[square][0]
                     path_already_exists = any(
                         value['land'] == new_path['land'] and value['take'] != new_path['take']
                         for value in self.restricted[square]
                     )
+
                     # Only append if the take path doesn't already exist
                     if not path_already_exists:
                         self.restricted[square].append(new_path)
@@ -257,3 +264,16 @@ class Damier():
                 else:
                     # Append a new path to the dictionary
                     self.restricted.update(dict_take)
+
+    def check_if_queened(self, pion):
+        team = self.teams[pion.get_color()]
+
+        # Get infos on a pion
+        x, way = pion.get_x(), pion.get_direction()
+
+        # Check if queening
+        if (way == 'up' and x == 0) or (way == 'down' and x == 10):
+            team.pion_to_queen(pion=pion)
+
+        print(f'num of player = {sum([1 for pion in team.get_pions()])}')
+        print(f'num of queen = {sum([isinstance(pion, Dame) for pion in team.get_pions()])}')

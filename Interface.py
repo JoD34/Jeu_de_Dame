@@ -1,5 +1,6 @@
 from tkinter import *
 from Damier import Damier
+from Dame import Dame
 from Equipe import Equipe
 from itertools import product
 
@@ -9,7 +10,7 @@ class JeuDeDame(Tk):
         
         # Generate general attributes
         self.title(titre)
-        self.iconphoto(False, Equipe.get_images(team_color='red', piece_category='queen'))
+        self.iconphoto(False, Equipe.get_images(team_color='red', piece_category='Dame'))
         self.side = 650
         self.number_of_squares = 10
         self.length_img = self.side / self.number_of_squares
@@ -112,6 +113,8 @@ class JeuDeDame(Tk):
                 self.moves = self.remove_highlight(list_to_empty = self.moves)
                 return
             self.click_select(square=square)
+
+        self.set_queens()
         # Get next turn
         self.__update_turn()
 
@@ -127,9 +130,7 @@ class JeuDeDame(Tk):
         self.moves = self.remove_highlight(list_to_empty = self.moves)
         
         # move the image of a piece between 2 canvas
-        self.move_image(canvas_remove = self.selected.get_canvas(),
-                        canvas_add = new_square.get_canvas(),
-                        team_color = self.turn)
+        self.move_image(case_remove = self.selected, case_add = new_square)
         
         # Check for forced moves once the table have turns
         self.set_highlight_forced_moves()
@@ -157,14 +158,12 @@ class JeuDeDame(Tk):
         # Get needed info on all squares present in a take
         color = self.selected.get_jeton().get_color()
 
-        # Move images
-        self.__remove_image(path['take'].get_canvas())
-        self.move_image(canvas_remove=self.selected.get_canvas(),
-                        canvas_add=path['land'].get_canvas(),
-                        team_color=color)
-
         # Remove Jeton from list of team
         self.damier.take_pion(taker=self.selected, path=path, team_color=color)
+
+        # Move images
+        self.__remove_image(path['take'].get_canvas())
+        self.move_image(case_remove=self.selected, case_add=path['land'])
 
         # Switch turn
         self.turn = self.damier.get_turn()
@@ -183,8 +182,7 @@ class JeuDeDame(Tk):
             if not square.is_occupied(): continue
             
             # Add image on a given canvas
-            self.__add_image(canvas=square.get_canvas(),
-                             team_color=square.get_jeton().get_color())
+            self.__add_image(case=square)
                 
     def highlight_moves(self, square):
         """
@@ -227,15 +225,16 @@ class JeuDeDame(Tk):
         """
         self.selected = None
         
-    def move_image(self, canvas_remove, canvas_add, team_color):
+    def move_image(self, case_remove, case_add):
         """
         List of command to move a given image from a canvas to another.
         :param canvas_remove: Canvas object on which to remove an image.
         :param canvas_add: Canvas object on which to add an image.
-        :param team_color: Represent the team color. Can either be black or red.
         """
-        self.__remove_image(canvas = canvas_remove)
-        self.__add_image(canvas = canvas_add, team_color = team_color, piece_category='reg')
+        jeton = case_add.get_jeton()
+
+        self.__remove_image(canvas = case_remove.get_canvas())
+        self.__add_image(case = case_add)
 
         self.__update_canvas()
         self.__update_turn()
@@ -247,7 +246,7 @@ class JeuDeDame(Tk):
         """
         canvas.delete('all')
     
-    def __add_image(self, canvas, team_color, piece_category='reg'):
+    def __add_image(self, case):
         """
         Add image on a given canvas
         :param canvas: Canvas object on which to add the image
@@ -255,8 +254,11 @@ class JeuDeDame(Tk):
         :param piece_category: type of piece. Either Pion or Dame
         """
         # Get image
-        img = Equipe.get_images(team_color=team_color, piece_category=piece_category)
-        
+        jeton = case.get_jeton()
+        canvas = case.get_canvas()
+
+        img = Equipe.get_images(team_color=jeton.get_color(), piece_category=type(jeton).__name__)
+
         # Create image
         canvas.create_image(self.length_img/2, self.length_img/2, anchor=CENTER, image=img)
         
@@ -286,3 +288,17 @@ class JeuDeDame(Tk):
             for path in paths:
                 for square, case in path.items():
                         self.__highlight_square(square=case, action='take')
+
+    def set_queens(self):
+        """
+        Check if a Pion object has reached a row to get promoted to a queen
+        """
+
+        queens = [pion for pion in self.damier.teams[self.turn].get_pions() if isinstance(pion, Dame)]
+        if not queens: return
+        queen_canvas = [queen.get_case() for queen in queens]
+
+        # Switch image for each queen canvas
+        for case in queen_canvas:
+            self.__remove_image(canvas=case.get_canvas())
+            self.__add_image(case=case)
