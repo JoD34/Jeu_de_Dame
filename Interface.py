@@ -92,11 +92,14 @@ class JeuDeDame(Tk):
 
         # Restricted moves to the forced moves
         if self.damier.restricted:
+
+            # Make sure a piece has been selected
             if self.selected is None:
                 if square.is_occupied() and square.get_jeton().get_color() == self.turn: self.selected = square
+
             else:
-                sub_dict = self.damier.restricted[self.selected]
-                for path in sub_dict:
+                # Get the taking path that has been selected by the click event
+                for path in self.damier.restricted[self.selected]:
                     if path['land']  == square or path['take'] == square:
                         self.click_take(path=path)
                         break
@@ -114,6 +117,7 @@ class JeuDeDame(Tk):
                 return
             self.click_select(square=square)
 
+        # Switch images for new queens
         self.set_queens()
         # Get next turn
         self.__update_turn()
@@ -123,6 +127,8 @@ class JeuDeDame(Tk):
         Action to follow if the click was on an highlighted square
         :param new_square: square on which to move the piece on self.selected
         """
+        jeton = self.selected.get_jeton()
+
         # Move piece between 2 squares
         self.damier.move_pieces(current_square=self.selected, new_square=new_square)
         
@@ -134,6 +140,7 @@ class JeuDeDame(Tk):
         
         # Check for forced moves once the table have turns
         self.set_highlight_forced_moves()
+
     
     def click_select(self, square):
         """
@@ -155,6 +162,7 @@ class JeuDeDame(Tk):
         List of command when the click event correspond to taking a piece
         :param square: Case object of the click event
         """
+        jeton = self.selected.get_jeton()
         # Get needed info on all squares present in a take
         color = self.selected.get_jeton().get_color()
 
@@ -190,11 +198,11 @@ class JeuDeDame(Tk):
         :param square: square of self.damier presenting a valid moves
         """
         # Get diagonal squares presenting possible moves
-        diags = self.damier.get_diagonal_squares(x=square.get_x(), y=square.get_y(), team_color=self.turn)
-        
+        moves = self.damier.get_diagonal_squares(case=square)
+
         # Highlight square if the move is available
-        for value in diags.values():
-            if value : self.__highlight_square(square=value, action='move')
+        for value in moves:
+                if value : self.__highlight_square(square=value, action='move')
 
     def __highlight_square(self, square, action):
         """
@@ -269,7 +277,7 @@ class JeuDeDame(Tk):
         """
         Update de canvas which add changes on their image
         """
-        for canvas in range(len(self.board)) :
+        for canvas in range(len(self.board)):
             if self.damier.get_squares()[canvas].is_occupied():
                 self.board[canvas].update()
         
@@ -286,14 +294,14 @@ class JeuDeDame(Tk):
         for key, paths in self.damier.restricted.items():
             self.__highlight_square(square=key, action='take')
             for path in paths:
-                for square, case in path.items():
+                for _, case in path.items():
                         self.__highlight_square(square=case, action='take')
 
     def set_queens(self):
         """
         Check if a Pion object has reached a row to get promoted to a queen
         """
-
+        # Get all the queens in a given team
         queens = [pion for pion in self.damier.teams[self.turn].get_pions() if isinstance(pion, Dame)]
         if not queens: return
         queen_canvas = [queen.get_case() for queen in queens]

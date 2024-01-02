@@ -42,20 +42,23 @@ class Damier():
         """
         return [Case(x=i, y=j) for i in range(self.square_per_side) for j in range(self.square_per_side)]
 
-    def get_diagonal_squares(self, x, y, team_color):
+    def get_diagonal_squares(self, case):
         """
         Get diagonal squares of a given square.
-        :param x: (int) row of the damier
-        :param y: (int) column of the damier
-        :param team_color: (str) color of team; either red or black
-        :return: (dict) squares retrieved
+        :param case: Case object where the click event happened
+        :return: dict of moves
         """
-        # Correction of x depending on team's color
-        x = x + 1 if team_color == 'black' else x - 1
+        # Switch if jeton is a Dame object
+        if isinstance(case.get_jeton(), Dame): return self.get_queen_moves(case)
 
-        # Get squares that should be available
-        return {'left': self.__retrieve_valid_square(x=x, y=(y - 1)),
-                'right': self.__retrieve_valid_square(x=x, y=(y + 1))}
+        # Get information on moves
+        mod = case.get_jeton().get_move()
+        x = case.get_jeton().get_x()
+        y = case.get_jeton().get_y()
+
+        # Get pions moves
+        return ([self.__retrieve_valid_square(x=(x + i), y=(y - i)) for i in mod] +
+                [self.__retrieve_valid_square(x=(x + i), y=(y + i)) for i in mod])
 
     def __retrieve_valid_square(self, x, y):
         """
@@ -129,8 +132,8 @@ class Damier():
         jeton.set_x(new_square.get_x())
         jeton.set_y(new_square.get_y())
 
-
-        self.check_if_queened(pion=jeton)
+        # Check if a new queen has come
+        self.check_if_queened(pion=new_square.get_jeton())
 
         # Switch turns
         self.next_turn()
@@ -155,22 +158,24 @@ class Damier():
         path['land'].set_jeton(taker.get_jeton())
         taker.remove_jeton()
 
-        # Set new x and y coordinates to the taker piece
+        # Set new x and y coordinates as well as the new Case object to the taker piece
         jeton = path['land'].get_jeton()
         jeton.set_x(path['land'].get_x())
         jeton.set_y(path['land'].get_y())
+        jeton.set_case(new_case=path['land'])
 
         # Check if team has lost
         self.teams[team_color].has_lost()
 
         # Get extra take
         self.get_extra_take(square=path['land'])
+
         # Switch turn
         if not self.restricted:
-            self.check_if_queened(pion=jeton)
             self.next_turn()
             self.get_forced_moves()
 
+        self.check_if_queened(pion=path['land'].get_jeton())
         self.print_game()
 
     def get_forced_moves(self):
@@ -268,16 +273,63 @@ class Damier():
     def check_if_queened(self, pion):
         """
         Check if the pion has reach the last row for queening
-        :param pion: pion that is moved; either by taking or moving
+        :param pion: Pion object to check if queening
         """
         # If already a queen, don't mind me
         if isinstance(pion, Dame): return
-
-        team = self.teams[pion.get_color()]
 
         # Get infos on a pion
         x, way = pion.get_x(), pion.get_direction()
 
         # Check if queening
-        if (way == 'up' and x == 0) or (way == 'down' and x == 10):
+        if (way == 'up' and x == 0) or (way == 'down' and x == 9):
+            team = self.teams[pion.get_color()]
             team.pion_to_queen(pion=pion)
+
+    def get_queen_moves(self, case):
+        """
+        Get valid moves for a queen on the board.
+        :param case: Case object representing the current position of the queen.
+        :return: List of Case objects representing valid moves for the queen.
+        """
+        x = case.get_x()
+        y = case.get_y()
+        mod = case.get_jeton().get_max_move()
+
+        # Get all possible moves
+        moves = [[self.__retrieve_valid_square(x=(x + i*k),
+                                               y=(y + i*j)) for i in range(1, mod)] for j in [1,-1] for k in [1,-1]]
+        moves = [self.restrict_queen_move(path=move) for move in moves]
+
+        return self.flatten_and_filter(moves)
+
+    @staticmethod
+    def restrict_queen_move(path):
+        """
+        Restrict the queen moves to stop before a double enemy
+        :param path: One of the four ways a queen can move
+        :return: List of moves the queen can take in  a given direction
+        """
+        for i, case in enumerate(path):
+            if i == len(path):
+                return path
+            elif case is None and path[i + 1] is None:
+                if i > 0:
+                    return path[0:i]
+                return
+
+    def flatten_and_filter(self, lst):
+        """
+        Remove None elements from a list moves
+        :param lst: List of moves possible for the queen
+        :return: a given list without the none elements
+        """
+        result = []
+        for item in lst:
+            if isinstance(item, list):
+                # Recursively flatten and filter sublists
+                result.extend(self.flatten_and_filter(item))
+            elif item is not None:
+                # Include non-None items in the result
+                result.append(item)
+        return result
