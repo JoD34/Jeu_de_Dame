@@ -3,6 +3,7 @@ from Damier import Damier
 from Dame import Dame
 from Equipe import Equipe
 from itertools import product
+from Pion import Pion
 
 class JeuDeDame(Tk):
     def __init__(self, titre):
@@ -128,7 +129,8 @@ class JeuDeDame(Tk):
         :param new_square: square on which to move the piece on self.selected
         """
         jeton = self.selected.get_jeton()
-
+        if isinstance(jeton, Dame):
+            self.click_move_queen(case=new_square)
         # Move piece between 2 squares
         self.damier.move_pieces(current_square=self.selected, new_square=new_square)
         
@@ -141,7 +143,38 @@ class JeuDeDame(Tk):
         # Check for forced moves once the table have turns
         self.set_highlight_forced_moves()
 
-    
+    def click_move_queen(self, case):
+        """
+        Eliminated Jeton objects that are in the queen move
+        :param case: Case object where the Queen landed
+        """
+        # Get coordinate infos
+        x_init = self.selected.get_x()
+        y_init = self.selected.get_y()
+        x_land = case.get_x()
+        y_land = case.get_y()
+
+        # Get coordinates motion
+        y_way = 1 if y_land - y_init > 0 else -1
+        x_way = 1 if x_land - x_init > 0 else -1
+
+        # Get number of case object to check
+        check = abs(x_init - x_land)
+
+        # Check cases
+        for i in range(1, check):
+            case = self.damier.get_square(x=(x_init + i * x_way), y=(y_init + i * y_way))
+            if case.is_occupied():
+                # Remove Jeton object
+                jeton = case.get_jeton()
+                self.damier.teams[jeton.get_color()].remove_jeton(jeton)
+                case.remove_jeton()
+                jeton.delete_jeton()
+
+                # Remove and update images
+                self.__remove_image(canvas=case.get_canvas())
+                self.__update_canvas()
+
     def click_select(self, square):
         """
         Action to follow if the click was for selecting a piece

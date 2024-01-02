@@ -68,7 +68,8 @@ class Damier():
         :return: Case object if move is valide. None otherwise.
         """
         # Check if column index is out of bound
-        if (y >= 10) or (y < 0): return
+        if (y >= 10) or (y < 0) or (x >= 10) or (x < 0):
+            return
 
         # Get square
         square = self.get_square(x=x, y=y)
@@ -298,7 +299,7 @@ class Damier():
 
         # Get all possible moves
         moves = [[self.__retrieve_valid_square(x=(x + i*k),
-                                               y=(y + i*j)) for i in range(1, mod)] for j in [1,-1] for k in [1,-1]]
+                                               y=(y + i*j)) for i in range(1, mod)] for j in [1, -1] for k in [1, -1]]
         moves = [self.restrict_queen_move(path=move) for move in moves]
 
         return self.flatten_and_filter(moves)
@@ -311,8 +312,10 @@ class Damier():
         :return: List of moves the queen can take in  a given direction
         """
         for i, case in enumerate(path):
+
             if i == len(path):
                 return path
+
             elif case is None and path[i + 1] is None:
                 if i > 0:
                     return path[0:i]
@@ -326,10 +329,11 @@ class Damier():
         """
         result = []
         for item in lst:
+
             if isinstance(item, list):
-                # Recursively flatten and filter sublists
                 result.extend(self.flatten_and_filter(item))
+
             elif item is not None:
-                # Include non-None items in the result
                 result.append(item)
+
         return result
